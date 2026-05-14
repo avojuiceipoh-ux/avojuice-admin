@@ -31,10 +31,13 @@ export default function Login() {
   return (
     <div className="login-bg">
       <div className="login-card">
-        <div className="logo-area">
-          <span className="logo-emoji">🍎</span>
-          <Title level={3} style={{ color: '#52c41a', margin: 0 }}>爱我果饮</Title>
-          <Text type="secondary">管理后台</Text>
+        <div className="logo-area" style={{ textAlign: 'center', marginBottom: 24 }}>
+          <img
+            src="/logo.png"
+            alt="爱我果饮 AvoJuice"
+            style={{ width: 96, height: 96, marginBottom: 8 }}
+          />
+          <Text type="secondary" style={{ display: 'block' }}>管理后台</Text>
         </div>
 
         {error && (

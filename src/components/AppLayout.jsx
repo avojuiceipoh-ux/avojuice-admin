@@ -63,7 +63,11 @@ export default function AppLayout() {
           padding: collapsed ? 0 : '0 20px',
           borderBottom: '1px solid #f0f0f0',
         }}>
-          <span style={{ fontSize: 24 }}>🍎</span>
+          <img
+            src="/logo.png"
+            alt="爱我果饮"
+            style={{ width: 32, height: 32, objectFit: 'contain' }}
+          />
           {!collapsed && (
             <Text strong style={{ marginLeft: 10, fontSize: 15, color: '#52c41a' }}>
               爱我果饮
