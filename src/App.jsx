@@ -16,6 +16,13 @@ import Categories from './pages/menu/Categories'
 import Variants from './pages/menu/Variants'
 import Modifiers from './pages/menu/Modifiers'
 import Discounts from './pages/menu/Discounts'
+// V2 — 报表
+import SalesSummary from './pages/reports/SalesSummary'
+import SalesByItem from './pages/reports/SalesByItem'
+import SalesByCategory from './pages/reports/SalesByCategory'
+import SalesByHour from './pages/reports/SalesByHour'
+import Receipts from './pages/reports/Receipts'
+import DiscountUsage from './pages/reports/DiscountUsage'
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem('avo_admin_token')
@@ -39,63 +46,12 @@ export default function App() {
 
           {/* ─── 仪表板 ────────────────────────────── */}
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="dashboard/sales-summary" element={
-            <ComingSoon
-              title="Sales Summary"
-              batch="B3"
-              description="销售总览：今日/周/月/季营业额、订单数、客单价、毛利率、退款率 — 实时折线图 + 同比环比对比"
-              plannedFeatures={[
-                '总销售、订单数、客单价、毛利率',
-                '日 / 周 / 月 / 季 / 自定义区间',
-                '环比 + 同比对比（上周、上月、去年同期）',
-                '按门店 / 渠道（POS / App / Grab）切分',
-                '导出 CSV / Excel',
-              ]}
-            />
-          } />
-          <Route path="dashboard/sales-by-item" element={
-            <ComingSoon
-              title="Sales by Item"
-              batch="B3"
-              description="按单品看销量、销售额、毛利、毛利率、占比 — 帮你找畅销和滞销品，是茶饮店决定菜单升级的核心报表"
-              plannedFeatures={[
-                '产品销量排序（高/低）',
-                '毛利贡献排行',
-                '搭配菜单管理一键下架滞销品',
-              ]}
-            />
-          } />
-          <Route path="dashboard/sales-by-category" element={
-            <ComingSoon title="Sales by Category" batch="B3" description="按品类（特调 / 鲜榨 / 奶昔 / 茶）看占比和趋势，决定下季度菜单调整方向" />
-          } />
-          <Route path="dashboard/sales-by-hour" element={
-            <ComingSoon
-              title="Sales by Hour"
-              batch="B3"
-              description="按时段看客流和销售，茶饮店的高峰时段直接决定备料和排班"
-              plannedFeatures={[
-                '24 小时 heatmap',
-                '识别 Happy Hour 时段',
-                '排班和备料决策依据',
-              ]}
-            />
-          } />
-          <Route path="dashboard/receipts" element={
-            <ComingSoon
-              title="Receipts 收据流水"
-              batch="B3"
-              description="所有收据列表 + 搜索 + 补打 — SST/LHDN 审计也靠它"
-              plannedFeatures={[
-                '搜索（收据号、手机号、金额、日期）',
-                '补打小票（连蓝牙打印机）',
-                '订单详情 / 商品明细 / 支付方式',
-                '导出对账',
-              ]}
-            />
-          } />
-          <Route path="dashboard/discount-usage" element={
-            <ComingSoon title="Discount Usage" batch="B3" description="折扣使用统计 — 每个折扣的使用次数、让利金额、订单贡献。防止员工滥用、老板必看的报表" />
-          } />
+          <Route path="dashboard/sales-summary"     element={<SalesSummary />} />
+          <Route path="dashboard/sales-by-item"      element={<SalesByItem />} />
+          <Route path="dashboard/sales-by-category"  element={<SalesByCategory />} />
+          <Route path="dashboard/sales-by-hour"      element={<SalesByHour />} />
+          <Route path="dashboard/receipts"           element={<Receipts />} />
+          <Route path="dashboard/discount-usage"     element={<DiscountUsage />} />
 
           {/* ─── 菜单管理 ───────────────────────────── */}
           <Route path="menu/items" element={<Items />} />

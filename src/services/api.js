@@ -122,9 +122,19 @@ export const promoAPI = {
   delete: (id) => api.delete(`/admin/promotions/${id}`),
 }
 
-// ── Reports ───────────────────────────────────────────
+// ── Reports（V1 旧版兼容）──────────────────────────────
 export const reportAPI = {
   summary: (params) => api.get('/admin/reports', { params }),
+}
+
+// ── Reports V2 ─────────────────────────────────────────
+export const reportsV2API = {
+  salesSummary:    (params) => api.get('/admin/reports-v2/sales-summary',     { params }),
+  salesByItem:     (params) => api.get('/admin/reports-v2/sales-by-item',     { params }),
+  salesByCategory: (params) => api.get('/admin/reports-v2/sales-by-category', { params }),
+  salesByHour:     (params) => api.get('/admin/reports-v2/sales-by-hour',     { params }),
+  receipts:        (params) => api.get('/admin/reports-v2/receipts',          { params }),
+  discountUsage:   (params) => api.get('/admin/reports-v2/discount-usage',    { params }),
 }
 
 export default api
