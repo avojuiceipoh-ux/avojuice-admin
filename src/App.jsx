@@ -23,6 +23,20 @@ import SalesByCategory from './pages/reports/SalesByCategory'
 import SalesByHour from './pages/reports/SalesByHour'
 import Receipts from './pages/reports/Receipts'
 import DiscountUsage from './pages/reports/DiscountUsage'
+// V2 — 员工
+import Employees from './pages/employees/Employees'
+import TimeEntries from './pages/employees/TimeEntries'
+// V2 — 库存
+import InventoryItems from './pages/inventory/Items'
+import Wastage from './pages/inventory/Wastage'
+// V2 — 顾客
+import CustomerList from './pages/customers/CustomerList'
+import MembershipTiers from './pages/customers/MembershipTiers'
+import LoyaltyRules from './pages/customers/LoyaltyRules'
+// V2 — 设置
+import BusinessSettings from './pages/settings/Business'
+import FeatureToggles from './pages/settings/Features'
+import ReceiptSettings from './pages/settings/Receipt'
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem('avo_admin_token')
@@ -67,109 +81,34 @@ export default function App() {
           <Route path="promotions" element={<Promotions />} />
 
           {/* ─── 库存管理 ───────────────────────────── */}
-          <Route path="inventory/items" element={
-            <ComingSoon
-              title="原料 Items"
-              batch="B4"
-              description="原料级库存（鳄梨、芒果、珍珠、糖浆等）— 茶饮店命脉"
-              plannedFeatures={[
-                '原料 CRUD（单位、成本、供应商）',
-                '当前库存 + 预警阈值',
-                '保质期（自动损耗提醒）',
-                'SKU / 条形码',
-              ]}
-            />
-          } />
+          <Route path="inventory/items"       element={<InventoryItems />} />
+          <Route path="inventory/wastage"     element={<Wastage />} />
           <Route path="inventory/recipes" element={
-            <ComingSoon
-              title="配方 Recipes"
-              batch="B4"
-              description="产品 / 变量 / 加料 ↔ 原料的配方表 — 每杯用多少 g 原料"
-              plannedFeatures={[
-                '为每个产品/变量/加料挂接原料 + 用量',
-                '订单完成时自动扣库存',
-                '真实毛利率计算（基于实际成本）',
-              ]}
-            />
+            <ComingSoon title="配方 Recipes" batch="B4" description="产品 / 变量 / 加料 ↔ 原料的配方表，自动扣库存 — V0 后续上线" />
           } />
           <Route path="inventory/purchases" element={
-            <ComingSoon title="进货 Purchase Orders" batch="B4" description="供应商管理 + 进货单 + 到货验收 + 成本入库" />
-          } />
-          <Route path="inventory/wastage" element={
-            <ComingSoon
-              title="损耗 Wastage"
-              batch="B4"
-              description="损耗记录 — 真水果店的核心痛点，三个月数据足以支撑采购决策"
-              plannedFeatures={[
-                '损耗原因（变质 / 打翻 / 试做 / 客诉）',
-                '自动算成本损失',
-                '日 / 周 / 月报',
-                '低于历史均值预警',
-              ]}
-            />
+            <ComingSoon title="进货 Purchase Orders" batch="B4" description="供应商管理 + 进货单 + 到货验收 + 成本入库 — V0 后续上线" />
           } />
           <Route path="inventory/stock-count" element={
-            <ComingSoon title="盘点 Stock Count" batch="B4" description="期初 + 期末盘点 + 差异分析" />
+            <ComingSoon title="盘点 Stock Count" batch="B4" description="期初 + 期末盘点 + 差异分析 — V0 后续上线" />
           } />
 
           {/* ─── 顾客管理 ───────────────────────────── */}
-          <Route path="customers" element={<Users />} />
-          <Route path="customers/tiers" element={
-            <ComingSoon title="会员等级" batch="B4" description="Silver / Gold / Platinum 等级配置 + 升级条件" />
-          } />
-          <Route path="customers/loyalty" element={
-            <ComingSoon
-              title="积分规则"
-              batch="B4"
-              description="积分赚取 / 兑换规则配置"
-              plannedFeatures={[
-                '1 RM = X 分',
-                '100 分 = RM Y',
-                '过期规则（一年清零）',
-                '生日加倍 / 节假日加倍',
-              ]}
-            />
-          } />
+          <Route path="customers"          element={<CustomerList />} />
+          <Route path="customers/tiers"    element={<MembershipTiers />} />
+          <Route path="customers/loyalty"  element={<LoyaltyRules />} />
           <Route path="customers/coupons" element={
-            <ComingSoon title="优惠码" batch="B4" description="批量生成、单码、一次性码、限领次数" />
+            <ComingSoon title="优惠码" batch="B4" description="已挂在「菜单 → 折扣」管理。这里日后整合批量生成、一次性码" />
           } />
 
           {/* ─── 员工管理 ───────────────────────────── */}
-          <Route path="employees" element={
-            <ComingSoon
-              title="员工列表"
-              batch="B4"
-              description="员工档案 + 角色 + 时薪 + POS 登录 PIN"
-              plannedFeatures={[
-                '基本信息 + 角色（Owner / Manager / Cashier / Barista）',
-                'POS 4 位 PIN 登录码',
-                '时薪 + 工时统计',
-                '入职 / 离职',
-              ]}
-            />
-          } />
+          <Route path="employees"                element={<Employees />} />
+          <Route path="employees/time-entries"   element={<TimeEntries />} />
           <Route path="employees/shifts" element={
-            <ComingSoon title="班次 / 排班" batch="B4" description="周排班表 + 排班冲突检查" />
-          } />
-          <Route path="employees/time-entries" element={
-            <ComingSoon
-              title="打卡记录"
-              batch="B4"
-              description="员工上下班打卡 — 商家端 App 操作"
-              plannedFeatures={[
-                'Clock in / out（商家端 App 一键）',
-                '休息时长统计',
-                '工时报表 + 工资计算',
-                '迟到 / 早退提醒',
-              ]}
-            />
+            <ComingSoon title="班次 / 排班" batch="B4" description="周排班表 + 排班冲突检查 — V0 后续上线" />
           } />
           <Route path="employees/roles" element={
-            <ComingSoon
-              title="角色 / 权限"
-              batch="B4"
-              description="角色级权限控制 — 退款、改价、看报表、改菜单都可独立授权"
-            />
+            <ComingSoon title="角色 / 权限" batch="B4" description="角色级权限控制 — 退款、改价、看报表、改菜单都可独立授权 — V0 后续上线" />
           } />
 
           {/* ─── 高级报表 ───────────────────────────── */}
@@ -187,9 +126,7 @@ export default function App() {
           <Route path="outlets" element={<Outlets />} />
 
           {/* ─── 设置 ───────────────────────────────── */}
-          <Route path="settings/business" element={
-            <ComingSoon title="商户资料" batch="B4" description="店名 / SSM / 地址 / Logo / 联系方式" />
-          } />
+          <Route path="settings/business" element={<BusinessSettings />} />
           <Route path="settings/hours" element={
             <ComingSoon title="营业时间" batch="B4" description="周一至六 + 周日固定休息（按你的运营规则）" />
           } />
@@ -208,19 +145,7 @@ export default function App() {
           <Route path="settings/tax" element={
             <ComingSoon title="税率 / SST" batch="B4" description="SST 6% 配置 + 按品类豁免（F&B 现行规则）" />
           } />
-          <Route path="settings/receipt" element={
-            <ComingSoon
-              title="收据模板"
-              batch="B4"
-              description="自定义小票上下文案、Logo、QR 评价"
-              plannedFeatures={[
-                '顶部 Logo + 店铺信息',
-                '底部文案（自定义感谢语）',
-                'QR Code 链接（评价 / 顾客 App）',
-                '58mm / 80mm 切换',
-              ]}
-            />
-          } />
+          <Route path="settings/receipt" element={<ReceiptSettings />} />
           <Route path="settings/printers" element={
             <ComingSoon
               title="打印机配置"
@@ -238,21 +163,7 @@ export default function App() {
           <Route path="settings/loyalty" element={
             <ComingSoon title="积分规则（全局）" batch="B4" description="跟「顾客 → 积分规则」联动；这里是全局开关 + 默认规则" />
           } />
-          <Route path="settings/features" element={
-            <ComingSoon
-              title="功能开关 Feature Toggles"
-              batch="B4"
-              description="所有 V2 模块全建好，按这里的开关启用"
-              plannedFeatures={[
-                'KDS 后厨显示屏',
-                '自取 / 外卖',
-                '会员系统',
-                '员工打卡',
-                '损耗追踪',
-                '配方 / 自动扣库存',
-              ]}
-            />
-          } />
+          <Route path="settings/features" element={<FeatureToggles />} />
           <Route path="settings/integrations" element={
             <ComingSoon title="集成 / API" batch="B4" description="Grab / Foodpanda / SQL Accounting 等第三方集成" />
           } />

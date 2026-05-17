@@ -127,6 +127,64 @@ export const reportAPI = {
   summary: (params) => api.get('/admin/reports', { params }),
 }
 
+// ── Employees ──────────────────────────────────────────
+export const employeesAPI = {
+  list: () => api.get('/admin/employees'),
+  create: (data) => api.post('/admin/employees', data),
+  update: (id, data) => api.patch(`/admin/employees/${id}`, data),
+  delete: (id) => api.delete(`/admin/employees/${id}`),
+  // shifts
+  listShifts: (params) => api.get('/admin/employees/shifts', { params }),
+  createShift: (data) => api.post('/admin/employees/shifts', data),
+  updateShift: (id, data) => api.patch(`/admin/employees/shifts/${id}`, data),
+  deleteShift: (id) => api.delete(`/admin/employees/shifts/${id}`),
+  // time entries
+  listTimeEntries: (params) => api.get('/admin/employees/time-entries', { params }),
+  createTimeEntry: (data) => api.post('/admin/employees/time-entries', data),
+  updateTimeEntry: (id, data) => api.patch(`/admin/employees/time-entries/${id}`, data),
+  deleteTimeEntry: (id) => api.delete(`/admin/employees/time-entries/${id}`),
+}
+
+// ── Inventory ──────────────────────────────────────────
+export const inventoryAPI = {
+  list: () => api.get('/admin/inventory'),
+  create: (data) => api.post('/admin/inventory', data),
+  update: (id, data) => api.patch(`/admin/inventory/${id}`, data),
+  delete: (id) => api.delete(`/admin/inventory/${id}`),
+  // wastage
+  listWastage: (params) => api.get('/admin/inventory/wastage', { params }),
+  createWastage: (data) => api.post('/admin/inventory/wastage', data),
+  // recipes
+  listRecipes: (params) => api.get('/admin/inventory/recipes', { params }),
+  createRecipe: (data) => api.post('/admin/inventory/recipes', data),
+  deleteRecipe: (id) => api.delete(`/admin/inventory/recipes/${id}`),
+}
+
+// ── Customers V2 ───────────────────────────────────────
+export const customersAPI = {
+  list: () => api.get('/admin/customers'),
+  detail: (id) => api.get(`/admin/customers/${id}`),
+  listTiers: () => api.get('/admin/customers/tiers'),
+  createTier: (data) => api.post('/admin/customers/tiers', data),
+  updateTier: (id, data) => api.patch(`/admin/customers/tiers/${id}`, data),
+  deleteTier: (id) => api.delete(`/admin/customers/tiers/${id}`),
+  listLoyalty: () => api.get('/admin/customers/loyalty'),
+  createLoyalty: (data) => api.post('/admin/customers/loyalty', data),
+  updateLoyalty: (id, data) => api.patch(`/admin/customers/loyalty/${id}`, data),
+}
+
+// ── Settings ───────────────────────────────────────────
+export const settingsAPI = {
+  get: (namespace, outlet_id) => api.get(`/admin/settings/${namespace}`, { params: { outlet_id } }),
+  update: (namespace, data, outlet_id) =>
+    api.patch(`/admin/settings/${namespace}`, data, { params: { outlet_id } }),
+}
+
+// ── Outlets V2 ─────────────────────────────────────────
+export const outletsAPI = {
+  list: () => api.get('/outlets'),
+}
+
 // ── Reports V2 ─────────────────────────────────────────
 export const reportsV2API = {
   salesSummary:    (params) => api.get('/admin/reports-v2/sales-summary',     { params }),
