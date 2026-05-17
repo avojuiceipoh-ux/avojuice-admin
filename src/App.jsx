@@ -26,9 +26,12 @@ import DiscountUsage from './pages/reports/DiscountUsage'
 // V2 — 员工
 import Employees from './pages/employees/Employees'
 import TimeEntries from './pages/employees/TimeEntries'
+import Shifts from './pages/employees/Shifts'
+import Roles from './pages/employees/Roles'
 // V2 — 库存
 import InventoryItems from './pages/inventory/Items'
 import Wastage from './pages/inventory/Wastage'
+import Recipes from './pages/inventory/Recipes'
 // V2 — 顾客
 import CustomerList from './pages/customers/CustomerList'
 import MembershipTiers from './pages/customers/MembershipTiers'
@@ -37,6 +40,9 @@ import LoyaltyRules from './pages/customers/LoyaltyRules'
 import BusinessSettings from './pages/settings/Business'
 import FeatureToggles from './pages/settings/Features'
 import ReceiptSettings from './pages/settings/Receipt'
+import HoursSettings from './pages/settings/Hours'
+import PaymentsSettings from './pages/settings/Payments'
+import TaxSettings from './pages/settings/Tax'
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem('avo_admin_token')
@@ -83,9 +89,7 @@ export default function App() {
           {/* ─── 库存管理 ───────────────────────────── */}
           <Route path="inventory/items"       element={<InventoryItems />} />
           <Route path="inventory/wastage"     element={<Wastage />} />
-          <Route path="inventory/recipes" element={
-            <ComingSoon title="配方 Recipes" batch="B4" description="产品 / 变量 / 加料 ↔ 原料的配方表，自动扣库存 — V0 后续上线" />
-          } />
+          <Route path="inventory/recipes" element={<Recipes />} />
           <Route path="inventory/purchases" element={
             <ComingSoon title="进货 Purchase Orders" batch="B4" description="供应商管理 + 进货单 + 到货验收 + 成本入库 — V0 后续上线" />
           } />
@@ -104,12 +108,8 @@ export default function App() {
           {/* ─── 员工管理 ───────────────────────────── */}
           <Route path="employees"                element={<Employees />} />
           <Route path="employees/time-entries"   element={<TimeEntries />} />
-          <Route path="employees/shifts" element={
-            <ComingSoon title="班次 / 排班" batch="B4" description="周排班表 + 排班冲突检查 — V0 后续上线" />
-          } />
-          <Route path="employees/roles" element={
-            <ComingSoon title="角色 / 权限" batch="B4" description="角色级权限控制 — 退款、改价、看报表、改菜单都可独立授权 — V0 后续上线" />
-          } />
+          <Route path="employees/shifts" element={<Shifts />} />
+          <Route path="employees/roles"  element={<Roles />} />
 
           {/* ─── 高级报表 ───────────────────────────── */}
           <Route path="reports/sales-by-employee" element={
@@ -127,24 +127,9 @@ export default function App() {
 
           {/* ─── 设置 ───────────────────────────────── */}
           <Route path="settings/business" element={<BusinessSettings />} />
-          <Route path="settings/hours" element={
-            <ComingSoon title="营业时间" batch="B4" description="周一至六 + 周日固定休息（按你的运营规则）" />
-          } />
-          <Route path="settings/payments" element={
-            <ComingSoon
-              title="支付方式"
-              batch="B4"
-              description="启用 / 禁用各支付方式"
-              plannedFeatures={[
-                '现金 / DuitNow QR / Touch’n Go / GrabPay / 信用卡',
-                '商户绑定（TnG 商户审核完了在这里接入）',
-                '自定义支付方式（备用）',
-              ]}
-            />
-          } />
-          <Route path="settings/tax" element={
-            <ComingSoon title="税率 / SST" batch="B4" description="SST 6% 配置 + 按品类豁免（F&B 现行规则）" />
-          } />
+          <Route path="settings/hours"    element={<HoursSettings />} />
+          <Route path="settings/payments" element={<PaymentsSettings />} />
+          <Route path="settings/tax"      element={<TaxSettings />} />
           <Route path="settings/receipt" element={<ReceiptSettings />} />
           <Route path="settings/printers" element={
             <ComingSoon
