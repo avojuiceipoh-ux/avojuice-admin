@@ -55,12 +55,58 @@ export const orderAPI = {
   update: (id, data) => api.put(`/admin/orders/${id}`, data),
 }
 
-// ── Admin Menu ────────────────────────────────────────
+// ── Admin Menu ─ V2 完整版 ────────────────────────────
 export const menuAPI = {
+  // V1 兼容
   list: (outlet_id) => api.get('/admin/menu', { params: { outlet_id } }),
-  create: (data) => api.post('/admin/menu', data),
-  update: (id, data) => api.put(`/admin/menu/${id}`, data),
-  delete: (id) => api.delete(`/admin/menu/${id}`),
+}
+
+// Products
+export const productsAPI = {
+  list: () => api.get('/admin/menu/products'),
+  detail: (id) => api.get(`/admin/menu/products/${id}`),
+  create: (data) => api.post('/admin/menu/products', data),
+  update: (id, data) => api.patch(`/admin/menu/products/${id}`, data),
+  delete: (id) => api.delete(`/admin/menu/products/${id}`),
+}
+
+// Categories
+export const categoriesAPI = {
+  list: () => api.get('/admin/menu/categories'),
+  create: (data) => api.post('/admin/menu/categories', data),
+  update: (id, data) => api.patch(`/admin/menu/categories/${id}`, data),
+  delete: (id) => api.delete(`/admin/menu/categories/${id}`),
+}
+
+// Variants
+export const variantsAPI = {
+  listGroups: (product_id) => api.get('/admin/variants/groups', { params: { product_id } }),
+  createGroup: (data) => api.post('/admin/variants/groups', data),
+  updateGroup: (id, data) => api.patch(`/admin/variants/groups/${id}`, data),
+  deleteGroup: (id) => api.delete(`/admin/variants/groups/${id}`),
+  createOption: (data) => api.post('/admin/variants/options', data),
+  updateOption: (id, data) => api.patch(`/admin/variants/options/${id}`, data),
+  deleteOption: (id) => api.delete(`/admin/variants/options/${id}`),
+}
+
+// Modifiers
+export const modifiersAPI = {
+  listGroups: (product_id) => api.get('/admin/modifiers/groups', { params: { product_id } }),
+  createGroup: (data) => api.post('/admin/modifiers/groups', data),
+  updateGroup: (id, data) => api.patch(`/admin/modifiers/groups/${id}`, data),
+  deleteGroup: (id) => api.delete(`/admin/modifiers/groups/${id}`),
+  createItem: (data) => api.post('/admin/modifiers', data),
+  updateItem: (id, data) => api.patch(`/admin/modifiers/${id}`, data),
+  deleteItem: (id) => api.delete(`/admin/modifiers/${id}`),
+}
+
+// Discounts
+export const discountsAPI = {
+  list: (params) => api.get('/admin/discounts', { params }),
+  detail: (id) => api.get(`/admin/discounts/${id}`),
+  create: (data) => api.post('/admin/discounts', data),
+  update: (id, data) => api.patch(`/admin/discounts/${id}`, data),
+  delete: (id) => api.delete(`/admin/discounts/${id}`),
 }
 
 // ── Users ─────────────────────────────────────────────

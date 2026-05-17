@@ -10,6 +10,12 @@ import Orders from './pages/Orders'
 import Menu from './pages/Menu'
 import Users from './pages/Users'
 import Promotions from './pages/Promotions'
+// V2 — 菜单管理
+import Items from './pages/menu/Items'
+import Categories from './pages/menu/Categories'
+import Variants from './pages/menu/Variants'
+import Modifiers from './pages/menu/Modifiers'
+import Discounts from './pages/menu/Discounts'
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem('avo_admin_token')
@@ -92,74 +98,11 @@ export default function App() {
           } />
 
           {/* ─── 菜单管理 ───────────────────────────── */}
-          <Route path="menu/items" element={
-            <ComingSoon
-              title="产品 Items"
-              batch="B2"
-              description="完整产品管理 — 包含产品故事、SKU、变量（杯型/茶基）、Modifier（加料）、成本、毛利、营养"
-              plannedFeatures={[
-                '基本信息：名称、故事、简介、分类、价格、成本、SKU、条形码',
-                '产品图 + 图库（多图）',
-                '变量 Variants（杯型 M/L、茶基红/绿）',
-                'Modifier（加料：珍珠/椰果/燕麦奶）',
-                '配方挂接（自动算成本、扣库存）',
-                '标签（Halal / Vegan / Seasonal）',
-                '上下架开关',
-              ]}
-            />
-          } />
-          <Route path="menu/variants" element={
-            <ComingSoon
-              title="变量 Variants"
-              batch="B2"
-              description="所有产品共享的变量模板（杯型 / 茶基 / 糖度 / 冰度）"
-              plannedFeatures={[
-                'Variant Group CRUD（杯型 / 茶基 / 糖度 / 冰度）',
-                '每个 Group 下的 Options 管理 + 价格调整',
-                '可挂接产品（一对多或全局共享）',
-              ]}
-            />
-          } />
-          <Route path="menu/modifiers" element={
-            <ComingSoon
-              title="加料 Modifiers"
-              batch="B2"
-              description="可选加料项（珍珠、椰果、燕麦奶等）— 顾客点单时可多选"
-              plannedFeatures={[
-                'Modifier Group CRUD',
-                '价格 + 成本',
-                '挂接原料（自动扣库存）',
-                '最小/最大选择数限制',
-              ]}
-            />
-          } />
-          <Route path="menu/categories" element={
-            <ComingSoon
-              title="分类 Categories"
-              batch="B2"
-              description="菜单分类管理 — 含颜色、图标、排序"
-              plannedFeatures={[
-                '一级 + 二级分类',
-                'POS 按钮颜色',
-                '分类图（顾客 App 显示）',
-                '拖拽排序',
-              ]}
-            />
-          } />
-          <Route path="menu/discounts" element={
-            <ComingSoon
-              title="折扣 Discounts"
-              batch="B2"
-              description="折扣 / 优惠码管理"
-              plannedFeatures={[
-                '类型：百分比 / 固定金额 / 买 X 送 Y / 套餐捆绑',
-                '优惠码生成 + 限领次数',
-                '生效日期 + 使用门槛',
-                '可叠加 / 不可叠加',
-                '应用范围（全部 / 品类 / 单品）',
-              ]}
-            />
-          } />
+          <Route path="menu/items" element={<Items />} />
+          <Route path="menu/variants"   element={<Variants />} />
+          <Route path="menu/modifiers"  element={<Modifiers />} />
+          <Route path="menu/categories" element={<Categories />} />
+          <Route path="menu/discounts"  element={<Discounts />} />
 
           {/* 兼容旧路由 */}
           <Route path="menu" element={<Menu />} />
