@@ -32,6 +32,8 @@ import Roles from './pages/employees/Roles'
 import InventoryItems from './pages/inventory/Items'
 import Wastage from './pages/inventory/Wastage'
 import Recipes from './pages/inventory/Recipes'
+import Purchases from './pages/inventory/Purchases'
+import StockCount from './pages/inventory/StockCount'
 // V2 — 顾客
 import CustomerList from './pages/customers/CustomerList'
 import MembershipTiers from './pages/customers/MembershipTiers'
@@ -43,6 +45,9 @@ import ReceiptSettings from './pages/settings/Receipt'
 import HoursSettings from './pages/settings/Hours'
 import PaymentsSettings from './pages/settings/Payments'
 import TaxSettings from './pages/settings/Tax'
+import LoyaltyGlobal from './pages/settings/LoyaltyGlobal'
+import Integrations from './pages/settings/Integrations'
+import Billing from './pages/settings/Billing'
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem('avo_admin_token')
@@ -89,13 +94,9 @@ export default function App() {
           {/* ─── 库存管理 ───────────────────────────── */}
           <Route path="inventory/items"       element={<InventoryItems />} />
           <Route path="inventory/wastage"     element={<Wastage />} />
-          <Route path="inventory/recipes" element={<Recipes />} />
-          <Route path="inventory/purchases" element={
-            <ComingSoon title="进货 Purchase Orders" batch="B4" description="供应商管理 + 进货单 + 到货验收 + 成本入库 — V0 后续上线" />
-          } />
-          <Route path="inventory/stock-count" element={
-            <ComingSoon title="盘点 Stock Count" batch="B4" description="期初 + 期末盘点 + 差异分析 — V0 后续上线" />
-          } />
+          <Route path="inventory/recipes"     element={<Recipes />} />
+          <Route path="inventory/purchases"   element={<Purchases />} />
+          <Route path="inventory/stock-count" element={<StockCount />} />
 
           {/* ─── 顾客管理 ───────────────────────────── */}
           <Route path="customers"          element={<CustomerList />} />
@@ -145,16 +146,10 @@ export default function App() {
               ]}
             />
           } />
-          <Route path="settings/loyalty" element={
-            <ComingSoon title="积分规则（全局）" batch="B4" description="跟「顾客 → 积分规则」联动；这里是全局开关 + 默认规则" />
-          } />
-          <Route path="settings/features" element={<FeatureToggles />} />
-          <Route path="settings/integrations" element={
-            <ComingSoon title="集成 / API" batch="B4" description="Grab / Foodpanda / SQL Accounting 等第三方集成" />
-          } />
-          <Route path="settings/billing" element={
-            <ComingSoon title="账单 & 订阅" batch="B4" description="平台订阅状态、付款记录、发票下载" />
-          } />
+          <Route path="settings/loyalty"      element={<LoyaltyGlobal />} />
+          <Route path="settings/features"     element={<FeatureToggles />} />
+          <Route path="settings/integrations" element={<Integrations />} />
+          <Route path="settings/billing"      element={<Billing />} />
 
           {/* 兼容旧路由（避免老链接 404）*/}
           <Route path="users" element={<Users />} />

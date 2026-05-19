@@ -173,6 +173,25 @@ export const customersAPI = {
   updateLoyalty: (id, data) => api.patch(`/admin/customers/loyalty/${id}`, data),
 }
 
+// ── Purchases / Suppliers / Stock Counts ───────────────
+export const purchasesAPI = {
+  // suppliers
+  listSuppliers: () => api.get('/admin/purchases/suppliers'),
+  createSupplier: (d) => api.post('/admin/purchases/suppliers', d),
+  updateSupplier: (id, d) => api.patch(`/admin/purchases/suppliers/${id}`, d),
+  deleteSupplier: (id) => api.delete(`/admin/purchases/suppliers/${id}`),
+  // purchase orders
+  listOrders: () => api.get('/admin/purchases/orders'),
+  getOrder: (id) => api.get(`/admin/purchases/orders/${id}`),
+  createOrder: (d) => api.post('/admin/purchases/orders', d),
+  receiveOrder: (id) => api.patch(`/admin/purchases/orders/${id}/receive`),
+  cancelOrder: (id) => api.delete(`/admin/purchases/orders/${id}`),
+  // stock counts
+  listCounts: () => api.get('/admin/purchases/stock-counts'),
+  getCount: (id) => api.get(`/admin/purchases/stock-counts/${id}`),
+  createCount: (d) => api.post('/admin/purchases/stock-counts', d),
+}
+
 // ── Settings ───────────────────────────────────────────
 export const settingsAPI = {
   get: (namespace, outlet_id) => api.get(`/admin/settings/${namespace}`, { params: { outlet_id } }),

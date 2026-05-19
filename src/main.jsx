@@ -7,6 +7,9 @@ import 'dayjs/locale/zh-cn'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
+import { initSentry } from './lib/sentry'
+
+initSentry()
 
 dayjs.locale('zh-cn')
 
