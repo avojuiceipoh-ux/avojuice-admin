@@ -11,7 +11,7 @@ import {
 } from 'antd'
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined,
-  StarOutlined, StarFilled, AppstoreOutlined,
+  StarOutlined, StarFilled, AppstoreOutlined, MinusCircleOutlined,
 } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productsAPI, categoriesAPI, variantsAPI, modifiersAPI } from '../../services/api'
@@ -255,6 +255,20 @@ function ProductDrawer({ open, editingId, categories, onClose, onSaved }) {
     enabled: !!editingId && open,
   })
 
+  // 拉所有 variant_groups / modifier_groups（不限定 product_id），给勾选 UI 用
+  const allVariantsQuery = useQuery({
+    queryKey: ['admin-all-variant-groups'],
+    queryFn: () => variantsAPI.listGroups().then((r) => r.data),
+    enabled: open,
+  })
+  const allModifiersQuery = useQuery({
+    queryKey: ['admin-all-modifier-groups'],
+    queryFn: () => modifiersAPI.listGroups().then((r) => r.data),
+    enabled: open,
+  })
+  const allVariantGroups = allVariantsQuery.data?.groups ?? allVariantsQuery.data ?? []
+  const allModifierGroups = allModifiersQuery.data?.groups ?? allModifiersQuery.data ?? []
+
   React.useEffect(() => {
     if (!open) return
     if (isEdit && detailQuery.data?.product) {
@@ -262,6 +276,11 @@ function ProductDrawer({ open, editingId, categories, onClose, onSaved }) {
       form.setFieldsValue({
         ...p,
         tags: p.tags || [],
+        // fruit_info 必须是数组 — null/object/string 都防御为 []
+        fruit_info: Array.isArray(p.fruit_info) ? p.fruit_info : [],
+        // 已勾选的关联组 IDs（后端 GET /admin/menu/products/:id 返回）
+        variant_group_ids: detailQuery.data.variant_group_ids ?? [],
+        modifier_group_ids: detailQuery.data.modifier_group_ids ?? [],
       })
     } else {
       form.resetFields()
@@ -271,6 +290,9 @@ function ProductDrawer({ open, editingId, categories, onClose, onSaved }) {
         is_featured: false,
         prep_time_sec: 180,
         sort_order: 0,
+        fruit_info: [],
+        variant_group_ids: [],
+        modifier_group_ids: [],
       })
     }
   }, [open, isEdit, detailQuery.data])
@@ -329,7 +351,14 @@ function ProductDrawer({ open, editingId, categories, onClose, onSaved }) {
           {
             key: 'basic',
             label: '基本信息',
-            children: <BasicTab form={form} categories={categories} />,
+            children: (
+              <BasicTab
+                form={form}
+                categories={categories}
+                allVariantGroups={allVariantGroups}
+                allModifierGroups={allModifierGroups}
+              />
+            ),
           },
           {
             key: 'variants',
@@ -350,7 +379,7 @@ function ProductDrawer({ open, editingId, categories, onClose, onSaved }) {
 }
 
 // ─── Tab: 基本信息 ─────────────────────────────────────
-function BasicTab({ form, categories }) {
+function BasicTab({ form, categories, allVariantGroups = [], allModifierGroups = [] }) {
   return (
     <Form form={form} layout="vertical">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -422,6 +451,120 @@ function BasicTab({ form, categories }) {
         />
       </Form.Item>
 
+      <Divider>真材实料（菜单卡 + 详情页绿色卡展示）</Divider>
+
+      <Form.List name="fruit_info">
+        {(fields, { add, remove }) => (
+          <>
+            {fields.length === 0 && (
+              <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 12 }}>
+                填了之后顾客 App 会看到「🥑 1 颗 牛油果 · 🥛 200ml 鲜奶...」这种用料展示。
+              </Text>
+            )}
+            {fields.map(({ key, name }) => (
+              <Space.Compact key={key} block style={{ marginBottom: 8 }}>
+                <Form.Item
+                  name={[name, 'emoji']}
+                  noStyle
+                  rules={[{ max: 4, message: '1-2 个 emoji' }]}
+                >
+                  <Input placeholder="🥑" style={{ width: 70, textAlign: 'center' }} />
+                </Form.Item>
+                <Form.Item
+                  name={[name, 'name']}
+                  noStyle
+                  rules={[{ required: true, message: '必填' }]}
+                >
+                  <Input placeholder="牛油果" />
+                </Form.Item>
+                <Form.Item
+                  name={[name, 'qty']}
+                  noStyle
+                  rules={[{ required: true, message: '必填' }]}
+                >
+                  <InputNumber placeholder="1" min={0} step={0.5} style={{ width: 90 }} />
+                </Form.Item>
+                <Form.Item
+                  name={[name, 'unit']}
+                  noStyle
+                  rules={[{ required: true, message: '必填' }]}
+                >
+                  <Input placeholder="颗 / ml / g" style={{ width: 110 }} />
+                </Form.Item>
+                <Button
+                  danger
+                  type="text"
+                  icon={<MinusCircleOutlined />}
+                  onClick={() => remove(name)}
+                  style={{ width: 40 }}
+                />
+              </Space.Compact>
+            ))}
+            <Button
+              type="dashed"
+              onClick={() =>
+                add({ emoji: '', name: '', qty: 1, unit: '颗' })
+              }
+              block
+              icon={<PlusOutlined />}
+              style={{ marginTop: 4 }}
+            >
+              添加一行用料
+            </Button>
+            <Text type="secondary" style={{ display: 'block', marginTop: 8, fontSize: 11 }}>
+              💡 建议 2-4 行；emoji 单元格留空也行（顾客 App 会默认显示一个圆点）；
+              数量支持小数（0.5 颗）；单位中文英文都行（颗 / pcs / ml / g）。
+            </Text>
+          </>
+        )}
+      </Form.List>
+
+      <Divider>变量 / 加料组关联</Divider>
+
+      <Form.Item
+        label="关联的变量组（杯型 / 茶基等）"
+        name="variant_group_ids"
+        tooltip="在「菜单 → 变量管理」创建好的变量组，这里勾选哪些适用于本产品。可多选；取消勾选 = 本产品不展示该组。"
+      >
+        <Select
+          mode="multiple"
+          allowClear
+          placeholder={
+            allVariantGroups.length === 0
+              ? '还没有变量组 — 先去「菜单 → 变量」创建'
+              : '选择本产品适用的变量组'
+          }
+          options={allVariantGroups.map((g) => ({
+            value: g.id,
+            label: `${g.name}${g.options?.length ? ` (${g.options.length} 项)` : ''}`,
+          }))}
+          optionFilterProp="label"
+          showSearch
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="关联的加料组（珍珠 / 椰果 / 燕麦奶等）"
+        name="modifier_group_ids"
+        tooltip="在「菜单 → 加料管理」创建好的加料组，这里勾选哪些适用于本产品。可多选；取消勾选 = 本产品不展示该组。"
+      >
+        <Select
+          mode="multiple"
+          allowClear
+          placeholder={
+            allModifierGroups.length === 0
+              ? '还没有加料组 — 先去「菜单 → 加料」创建'
+              : '选择本产品适用的加料组'
+          }
+          options={allModifierGroups.map((g) => ({
+            value: g.id,
+            label: `${g.name}${g.modifiers?.length ? ` (${g.modifiers.length} 项)` : ''}`,
+          }))}
+          optionFilterProp="label"
+          showSearch
+        />
+      </Form.Item>
+
       <Divider />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16 }}>
@@ -442,272 +585,145 @@ function BasicTab({ form, categories }) {
   )
 }
 
-// ─── Tab: 变量管理 ─────────────────────────────────────
+// ─── Tab: 变量管理（勾选模式） ──────────────────────────
 function VariantsTab({ productId, groups }) {
   const qc = useQueryClient()
   const refetch = () => qc.invalidateQueries({ queryKey: ['admin-product-detail', productId] })
 
-  const addGroup = async () => {
-    const name = prompt('变量组名称（如：杯型 / 茶基 / 糖度）')
-    if (!name) return
-    try {
-      await variantsAPI.createGroup({ product_id: productId, name, sort_order: groups.length })
-      message.success('已添加')
-      refetch()
-    } catch (e) {
-      message.error(e.response?.data?.message ?? '添加失败')
-    }
-  }
+  // 拉取所有变量组
+  const allGroupsQuery = useQuery({
+    queryKey: ['admin-variants-all'],
+    queryFn: () => variantsAPI.listGroups().then((r) => r.data.groups || []),
+  })
+
+  const allGroups = allGroupsQuery.data ?? []
+  const assignedIds = new Set(groups.map((g) => g.id))
+
+  const assignMut = useMutation({
+    mutationFn: async ({ groupId, assign }) => {
+      if (assign) {
+        // 关联已有变量组到当前产品
+        await variantsAPI.updateGroup(groupId, { product_id: productId })
+      } else {
+        // 解除关联（设为全局）
+        await variantsAPI.updateGroup(groupId, { product_id: null })
+      }
+    },
+    onSuccess: () => { refetch(); qc.invalidateQueries({ queryKey: ['admin-variants-all'] }) },
+    onError: (e) => message.error('操作失败'),
+  })
 
   return (
     <div>
-      <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: 12 }}>
         <Text type="secondary">
-          变量 = 必选项（杯型 M/L、茶基红/绿）影响价格。给同产品的不同卖法。
+          勾选此产品要使用的变量组。新建/编辑变量请在 <a href="/menu/variants" onClick={(e) => { e.preventDefault(); window.location.href = '/menu/variants' }}>变量管理</a> 页面操作。
         </Text>
-        <Button icon={<PlusOutlined />} onClick={addGroup}>添加变量组</Button>
       </div>
 
-      {groups.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
-          还没有变量组。点击"添加变量组"开始。
-        </div>
+      {allGroupsQuery.isLoading ? (
+        <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
       ) : (
-        groups.map((g) => (
-          <VariantGroupCard key={g.id} group={g} productId={productId} onChange={refetch} />
-        ))
+        <Card size="small">
+          {allGroups.map((g) => {
+            const isAssigned = assignedIds.has(g.id)
+            return (
+              <div
+                key={g.id}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '8px 0', borderBottom: '1px solid #f0f0f0',
+                }}
+              >
+                <Space>
+                  <Switch
+                    checked={isAssigned}
+                    loading={assignMut.isPending}
+                    onChange={(checked) => assignMut.mutate({ groupId: g.id, assign: checked })}
+                  />
+                  <Text strong>{g.name}</Text>
+                  {g.product_name && g.product_name !== groups[0]?.product_name && (
+                    <Tag color="blue">{g.product_name}</Tag>
+                  )}
+                  <Tag color={g.is_required ? 'green' : 'default'}>{g.is_required ? '必选' : '可选'}</Tag>
+                  <Tag>{g.selection_type === 'single' ? '单选' : '多选'}</Tag>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {g.options?.length || 0} 个选项
+                  </Text>
+                </Space>
+              </div>
+            )
+          })}
+        </Card>
       )}
     </div>
   )
 }
 
-function VariantGroupCard({ group, productId, onChange }) {
-  const [adding, setAdding] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newPrice, setNewPrice] = useState(0)
-
-  const handleDelete = async () => {
-    if (!confirm(`删除变量组「${group.name}」及其所有选项？`)) return
-    try {
-      await variantsAPI.deleteGroup(group.id)
-      onChange()
-    } catch (e) {
-      message.error('删除失败')
-    }
-  }
-
-  const handleAddOption = async () => {
-    if (!newName) return
-    try {
-      await variantsAPI.createOption({
-        variant_group_id: group.id,
-        name: newName,
-        price_delta: newPrice,
-        sort_order: group.options.length,
-      })
-      setNewName('')
-      setNewPrice(0)
-      setAdding(false)
-      onChange()
-    } catch (e) {
-      message.error('添加失败')
-    }
-  }
-
-  const handleDeleteOption = async (id) => {
-    try {
-      await variantsAPI.deleteOption(id)
-      onChange()
-    } catch (e) {
-      message.error('删除失败')
-    }
-  }
-
-  return (
-    <Card
-      size="small"
-      style={{ marginBottom: 12 }}
-      title={<Text strong>{group.name}</Text>}
-      extra={<Button danger size="small" type="link" onClick={handleDelete}>删除组</Button>}
-    >
-      <Table
-        size="small"
-        rowKey="id"
-        dataSource={group.options}
-        pagination={false}
-        columns={[
-          { title: '选项名', dataIndex: 'name' },
-          {
-            title: '价格调整',
-            dataIndex: 'price_delta',
-            width: 120,
-            render: (v) => (Number(v) === 0 ? <Text type="secondary">±0</Text> : <Text>{v > 0 ? `+RM ${v}` : `-RM ${Math.abs(v)}`}</Text>),
-          },
-          {
-            title: '默认',
-            dataIndex: 'is_default',
-            width: 80,
-            render: (v) => v ? <Tag color="green">默认</Tag> : null,
-          },
-          {
-            title: '操作',
-            width: 80,
-            render: (_, row) => (
-              <Button type="link" danger size="small" onClick={() => handleDeleteOption(row.id)}>
-                删除
-              </Button>
-            ),
-          },
-        ]}
-      />
-
-      {adding ? (
-        <Space style={{ marginTop: 8 }}>
-          <Input placeholder="选项名" value={newName} onChange={(e) => setNewName(e.target.value)} />
-          <InputNumber placeholder="价格调整" value={newPrice} onChange={setNewPrice} prefix="RM" />
-          <Button type="primary" size="small" onClick={handleAddOption}>添加</Button>
-          <Button size="small" onClick={() => { setAdding(false); setNewName('') }}>取消</Button>
-        </Space>
-      ) : (
-        <Button size="small" icon={<PlusOutlined />} style={{ marginTop: 8 }} onClick={() => setAdding(true)}>
-          添加选项
-        </Button>
-      )}
-    </Card>
-  )
-}
-
-// ─── Tab: Modifier 管理 ────────────────────────────────
+// ─── Tab: Modifier 管理（勾选模式） ────────────────────
 function ModifiersTab({ productId, groups }) {
   const qc = useQueryClient()
   const refetch = () => qc.invalidateQueries({ queryKey: ['admin-product-detail', productId] })
 
-  const addGroup = async () => {
-    const name = prompt('加料组名称（如：加料 / Topping）')
-    if (!name) return
-    try {
-      await modifiersAPI.createGroup({ product_id: productId, name, sort_order: groups.length })
-      message.success('已添加')
-      refetch()
-    } catch (e) {
-      message.error('添加失败')
-    }
-  }
+  const allGroupsQuery = useQuery({
+    queryKey: ['admin-modifiers-all'],
+    queryFn: () => modifiersAPI.listGroups().then((r) => r.data.groups || []),
+  })
+
+  const allGroups = allGroupsQuery.data ?? []
+  const assignedIds = new Set(groups.map((g) => g.id))
+
+  const assignMut = useMutation({
+    mutationFn: async ({ groupId, assign }) => {
+      await modifiersAPI.updateGroup(groupId, { product_id: assign ? productId : null })
+    },
+    onSuccess: () => { refetch(); qc.invalidateQueries({ queryKey: ['admin-modifiers-all'] }) },
+    onError: (e) => message.error('操作失败'),
+  })
 
   return (
     <div>
-      <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: 12 }}>
         <Text type="secondary">
-          Modifier = 可选加料（珍珠、椰果、燕麦奶）一般多选，每个加价。
+          勾选此产品要使用的加料组。新建/编辑加料请在 <a href="/menu/modifiers" onClick={(e) => { e.preventDefault(); window.location.href = '/menu/modifiers' }}>加料管理</a> 页面操作。
         </Text>
-        <Button icon={<PlusOutlined />} onClick={addGroup}>添加加料组</Button>
       </div>
 
-      {groups.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
-          还没有加料组。点击"添加加料组"开始。
-        </div>
+      {allGroupsQuery.isLoading ? (
+        <div style={{ textAlign: 'center', padding: 40 }}>加载中...</div>
       ) : (
-        groups.map((g) => (
-          <ModifierGroupCard key={g.id} group={g} productId={productId} onChange={refetch} />
-        ))
+        <Card size="small">
+          {allGroups.map((g) => {
+            const isAssigned = assignedIds.has(g.id)
+            return (
+              <div
+                key={g.id}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '8px 0', borderBottom: '1px solid #f0f0f0',
+                }}
+              >
+                <Space>
+                  <Switch
+                    checked={isAssigned}
+                    loading={assignMut.isPending}
+                    onChange={(checked) => assignMut.mutate({ groupId: g.id, assign: checked })}
+                  />
+                  <Text strong>{g.name}</Text>
+                  {g.product_name && g.product_name !== groups[0]?.product_name && (
+                    <Tag color="blue">{g.product_name}</Tag>
+                  )}
+                  <Tag color={g.is_required ? 'green' : 'default'}>{g.is_required ? '必选' : '可选'}</Tag>
+                  <Tag>{g.selection_type === 'single' ? '单选' : '多选'}</Tag>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {g.modifiers?.length || 0} 个加料项
+                  </Text>
+                </Space>
+              </div>
+            )
+          })}
+        </Card>
       )}
     </div>
-  )
-}
-
-function ModifierGroupCard({ group, productId, onChange }) {
-  const [adding, setAdding] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newPrice, setNewPrice] = useState(1)
-
-  const handleDelete = async () => {
-    if (!confirm(`删除加料组「${group.name}」及其所有项？`)) return
-    try {
-      await modifiersAPI.deleteGroup(group.id)
-      onChange()
-    } catch (e) {
-      message.error('删除失败')
-    }
-  }
-
-  const handleAddItem = async () => {
-    if (!newName) return
-    try {
-      await modifiersAPI.createItem({
-        modifier_group_id: group.id,
-        name: newName,
-        price: newPrice,
-        sort_order: group.modifiers.length,
-      })
-      setNewName('')
-      setNewPrice(1)
-      setAdding(false)
-      onChange()
-    } catch (e) {
-      message.error('添加失败')
-    }
-  }
-
-  const handleDeleteItem = async (id) => {
-    try {
-      await modifiersAPI.deleteItem(id)
-      onChange()
-    } catch (e) {
-      message.error('删除失败')
-    }
-  }
-
-  return (
-    <Card
-      size="small"
-      style={{ marginBottom: 12 }}
-      title={<Text strong>{group.name}{group.product_id === null && <Tag color="blue" style={{ marginLeft: 8 }}>全局</Tag>}</Text>}
-      extra={group.product_id ? <Button danger size="small" type="link" onClick={handleDelete}>删除组</Button> : null}
-    >
-      <Table
-        size="small"
-        rowKey="id"
-        dataSource={group.modifiers}
-        pagination={false}
-        columns={[
-          { title: '加料项', dataIndex: 'name' },
-          {
-            title: '加价',
-            dataIndex: 'price',
-            width: 100,
-            render: (v) => <Text strong style={{ color: '#52c41a' }}>+RM {Number(v).toFixed(2)}</Text>,
-          },
-          {
-            title: '上架',
-            dataIndex: 'is_available',
-            width: 80,
-            render: (v) => v ? <Tag color="success">在售</Tag> : <Tag>下架</Tag>,
-          },
-          {
-            title: '操作',
-            width: 80,
-            render: (_, row) => (
-              <Button type="link" danger size="small" onClick={() => handleDeleteItem(row.id)}>
-                删除
-              </Button>
-            ),
-          },
-        ]}
-      />
-
-      {adding ? (
-        <Space style={{ marginTop: 8 }}>
-          <Input placeholder="加料名（珍珠 / 椰果...）" value={newName} onChange={(e) => setNewName(e.target.value)} />
-          <InputNumber placeholder="加价" value={newPrice} onChange={setNewPrice} prefix="RM" min={0} step={0.5} />
-          <Button type="primary" size="small" onClick={handleAddItem}>添加</Button>
-          <Button size="small" onClick={() => { setAdding(false); setNewName('') }}>取消</Button>
-        </Space>
-      ) : (
-        <Button size="small" icon={<PlusOutlined />} style={{ marginTop: 8 }} onClick={() => setAdding(true)}>
-          添加加料项
-        </Button>
-      )}
-    </Card>
   )
 }

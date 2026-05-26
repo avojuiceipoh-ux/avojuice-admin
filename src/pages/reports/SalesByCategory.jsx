@@ -30,20 +30,21 @@ export default function SalesByCategory() {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={12}>
-          <Card>
+          <Card style={{ height: '100%' }}>
             <Statistic title="总营业额" value={Number(totalRevenue)} precision={2} prefix="RM" valueStyle={{ color: '#52c41a' }} />
+            <div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>{categories.length} 个品类</div>
           </Card>
         </Col>
         <Col xs={24} sm={12}>
-          <Card>
+          <Card style={{ height: '100%' }}>
             <Statistic
               title="最大品类"
               value={categories[0]?.name ?? '—'}
               valueStyle={{ fontSize: 18 }}
             />
-            <Text type="secondary" style={{ fontSize: 12 }}>
+            <div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>
               {categories[0] ? `${categories[0].percent}% · RM ${Number(categories[0].revenue).toFixed(2)}` : '暂无'}
-            </Text>
+            </div>
           </Card>
         </Col>
       </Row>

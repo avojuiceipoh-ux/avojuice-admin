@@ -89,7 +89,7 @@ export default function Dashboard() {
         <Row gutter={[16, 16]}>
           {statCards.map((s, i) => (
             <Col xs={24} sm={12} lg={6} key={i}>
-              <Card className="stat-card" bordered={false}>
+              <Card className="stat-card" bordered={false} style={{ height: '100%' }}>
                 <Statistic
                   title={s.title}
                   value={s.value}

@@ -38,17 +38,17 @@ export default function DiscountUsage() {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={8}>
-          <Card>
+          <Card style={{ height: '100%' }}>
             <Statistic title="总让利金额" value={totalDiscount} precision={2} prefix="RM" valueStyle={{ color: '#faad14' }} />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card>
+          <Card style={{ height: '100%' }}>
             <Statistic title="总使用次数" value={totalUsage} suffix="次" />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card>
+          <Card style={{ height: '100%' }}>
             <Statistic title="折扣种类" value={discounts.length} suffix="个" />
           </Card>
         </Col>

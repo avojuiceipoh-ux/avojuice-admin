@@ -30,21 +30,21 @@ export default function SalesByItem() {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={8}>
-          <Card><Statistic title="总营业额" value={Number(totalRevenue)} precision={2} prefix="RM" valueStyle={{ color: '#52c41a' }} /></Card>
+          <Card style={{ height: '100%' }}><Statistic title="总营业额" value={Number(totalRevenue)} precision={2} prefix="RM" valueStyle={{ color: '#52c41a' }} /><div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>{items.length} 种产品</div></Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card><Statistic title="售出产品种类" value={items.length} suffix="种" /></Card>
+          <Card style={{ height: '100%' }}><Statistic title="售出产品种类" value={items.length} suffix="种" /><div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>{items.reduce((s,i) => s + (i.qty||0), 0)} 杯总销量</div></Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card>
+          <Card style={{ height: '100%' }}>
             <Statistic
               title="畅销 #1"
               value={items[0]?.name_cn ?? '—'}
               valueStyle={{ fontSize: 18 }}
             />
-            <Text type="secondary" style={{ fontSize: 12 }}>
+            <div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>
               {items[0] ? `${items[0].qty} 杯 · RM ${Number(items[0].revenue).toFixed(2)}` : '暂无数据'}
-            </Text>
+            </div>
           </Card>
         </Col>
       </Row>

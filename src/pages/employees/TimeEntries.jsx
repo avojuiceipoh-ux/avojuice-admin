@@ -31,13 +31,13 @@ export default function TimeEntries() {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={8}>
-          <Card><Statistic title="总工时" value={totalHours.toFixed(1)} suffix="小时" /></Card>
+          <Card style={{ height: '100%' }}><Statistic title="总工时" value={totalHours.toFixed(1)} suffix="小时" /></Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card><Statistic title="总工资" value={totalWage.toFixed(2)} prefix="RM" valueStyle={{ color: '#52c41a' }} /></Card>
+          <Card style={{ height: '100%' }}><Statistic title="总工资" value={totalWage.toFixed(2)} prefix="RM" valueStyle={{ color: '#52c41a' }} /></Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card><Statistic title="当前在岗" value={activeNow} suffix="人" valueStyle={{ color: activeNow > 0 ? '#52c41a' : undefined }} /></Card>
+          <Card style={{ height: '100%' }}><Statistic title="当前在岗" value={activeNow} suffix="人" valueStyle={{ color: activeNow > 0 ? '#52c41a' : undefined }} /></Card>
         </Col>
       </Row>
 

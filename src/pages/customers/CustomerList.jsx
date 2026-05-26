@@ -20,9 +20,9 @@ export default function CustomerList() {
   return (
     <div>
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col xs={24} sm={8}><Card><Statistic title="总顾客数" value={customers.length} prefix={<TeamOutlined />} /></Card></Col>
-        <Col xs={24} sm={8}><Card><Statistic title="累计消费" value={totalSpent} precision={2} prefix="RM" valueStyle={{ color: '#52c41a' }} /></Card></Col>
-        <Col xs={24} sm={8}><Card><Statistic title="会员顾客" value={vipCount} suffix={`/ ${customers.length}`} /></Card></Col>
+        <Col xs={24} sm={8}><Card style={{ height: '100%' }}><Statistic title="总顾客数" value={customers.length} prefix={<TeamOutlined />} /></Card></Col>
+        <Col xs={24} sm={8}><Card style={{ height: '100%' }}><Statistic title="累计消费" value={totalSpent} precision={2} prefix="RM" valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col xs={24} sm={8}><Card style={{ height: '100%' }}><Statistic title="会员顾客" value={vipCount} suffix={`/ ${customers.length}`} /></Card></Col>
       </Row>
 
       <Card title={<Title level={4} style={{ margin: 0 }}>顾客列表</Title>} loading={query.isLoading}>

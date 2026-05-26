@@ -64,10 +64,10 @@ export default function Wastage() {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={12}>
-          <Card><Statistic title="期间总损失" value={totalCost} precision={2} prefix="RM" valueStyle={{ color: '#ff4d4f' }} /></Card>
+          <Card style={{ height: '100%' }}><Statistic title="期间总损失" value={totalCost} precision={2} prefix="RM" valueStyle={{ color: '#ff4d4f' }} /></Card>
         </Col>
         <Col xs={24} sm={12}>
-          <Card><Statistic title="损耗记录数" value={entries.length} suffix="次" /></Card>
+          <Card style={{ height: '100%' }}><Statistic title="损耗记录数" value={entries.length} suffix="次" /></Card>
         </Col>
       </Row>
 

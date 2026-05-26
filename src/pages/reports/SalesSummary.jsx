@@ -44,7 +44,7 @@ export default function SalesSummary() {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={query.isLoading}>
+          <Card loading={query.isLoading} style={{ height: '100%' }}>
             <Statistic
               title={<Space>营业额 <RiseOutlined style={{ color: '#52c41a' }} /></Space>}
               value={Number(summary?.revenue ?? 0)}
@@ -52,35 +52,38 @@ export default function SalesSummary() {
               prefix="RM"
               valueStyle={{ color: '#52c41a' }}
             />
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>
               对比上期 {renderGrowth(growth?.revenue)}
             </div>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={query.isLoading}>
+          <Card loading={query.isLoading} style={{ height: '100%' }}>
             <Statistic
               title={<Space>订单数 <ShoppingCartOutlined /></Space>}
               value={summary?.order_count ?? 0}
               suffix="单"
             />
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>
               对比上期 {renderGrowth(growth?.orders)}
             </div>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={query.isLoading}>
+          <Card loading={query.isLoading} style={{ height: '100%' }}>
             <Statistic
               title="客单价 AOV"
               value={Number(summary?.aov ?? 0)}
               precision={2}
               prefix="RM"
             />
+            <div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>
+              对比上期 {renderGrowth(growth?.aov)}
+            </div>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card loading={query.isLoading}>
+          <Card loading={query.isLoading} style={{ height: '100%' }}>
             <Statistic
               title={<Space>优惠让利 <FallOutlined style={{ color: '#faad14' }} /></Space>}
               value={Number(summary?.discount_given ?? 0)}
@@ -88,7 +91,7 @@ export default function SalesSummary() {
               prefix="RM"
               valueStyle={{ color: '#faad14' }}
             />
-            <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>
+            <div style={{ marginTop: 8, fontSize: 13, color: '#999' }}>
               退款 {summary?.refund_count ?? 0} 单
             </div>
           </Card>
