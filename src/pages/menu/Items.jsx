@@ -345,34 +345,12 @@ function ProductDrawer({ open, editingId, categories, onClose, onSaved }) {
         </Space>
       }
     >
-      <Tabs
-        defaultActiveKey="basic"
-        items={[
-          {
-            key: 'basic',
-            label: '基本信息',
-            children: (
-              <BasicTab
-                form={form}
-                categories={categories}
-                allVariantGroups={allVariantGroups}
-                allModifierGroups={allModifierGroups}
-              />
-            ),
-          },
-          {
-            key: 'variants',
-            label: `变量 Variants${isEdit ? ` (${detailQuery.data?.variant_groups?.length ?? 0})` : ''}`,
-            disabled: !isEdit,
-            children: isEdit ? <VariantsTab productId={editingId} groups={detailQuery.data?.variant_groups ?? []} /> : null,
-          },
-          {
-            key: 'modifiers',
-            label: `加料 Modifiers${isEdit ? ` (${detailQuery.data?.modifier_groups?.length ?? 0})` : ''}`,
-            disabled: !isEdit,
-            children: isEdit ? <ModifiersTab productId={editingId} groups={detailQuery.data?.modifier_groups ?? []} /> : null,
-          },
-        ]}
+      {/* 变量 / 加料组的勾选 UI 已经在 BasicTab 里（multi-select 关联式管理），不再需要独立 Tab */}
+      <BasicTab
+        form={form}
+        categories={categories}
+        allVariantGroups={allVariantGroups}
+        allModifierGroups={allModifierGroups}
       />
     </Drawer>
   )
