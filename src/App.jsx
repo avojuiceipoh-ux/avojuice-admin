@@ -31,7 +31,6 @@ import Roles from './pages/employees/Roles'
 // V2 — 库存
 import InventoryItems from './pages/inventory/Items'
 import Wastage from './pages/inventory/Wastage'
-import Recipes from './pages/inventory/Recipes'
 import Purchases from './pages/inventory/Purchases'
 import StockCount from './pages/inventory/StockCount'
 // V2 — 顾客
@@ -94,7 +93,6 @@ export default function App() {
           {/* ─── 库存管理 ───────────────────────────── */}
           <Route path="inventory/items"       element={<InventoryItems />} />
           <Route path="inventory/wastage"     element={<Wastage />} />
-          <Route path="inventory/recipes"     element={<Recipes />} />
           <Route path="inventory/purchases"   element={<Purchases />} />
           <Route path="inventory/stock-count" element={<StockCount />} />
 

@@ -154,10 +154,6 @@ export const inventoryAPI = {
   // wastage
   listWastage: (params) => api.get('/admin/inventory/wastage', { params }),
   createWastage: (data) => api.post('/admin/inventory/wastage', data),
-  // recipes
-  listRecipes: (params) => api.get('/admin/inventory/recipes', { params }),
-  createRecipe: (data) => api.post('/admin/inventory/recipes', data),
-  deleteRecipe: (id) => api.delete(`/admin/inventory/recipes/${id}`),
 }
 
 // ── Customers V2 ───────────────────────────────────────

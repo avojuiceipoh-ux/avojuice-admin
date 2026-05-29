@@ -56,7 +56,6 @@ const menuItems = [
     label: '库存管理',
     children: [
       { key: '/inventory/items',         label: '原料 Items' },
-      { key: '/inventory/recipes',       label: '配方 Recipes' },
       { key: '/inventory/purchases',     label: '进货 Purchases' },
       { key: '/inventory/wastage',       label: '损耗 Wastage' },
       { key: '/inventory/stock-count',   label: '盘点 Stock Count' },
