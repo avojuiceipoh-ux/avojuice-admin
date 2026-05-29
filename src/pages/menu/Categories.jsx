@@ -132,13 +132,14 @@ export default function Categories() {
           </Button>
           <Popconfirm
             title="确认删除？"
-            description={row.product_count > 0 ? `该分类下还有 ${row.product_count} 个产品，无法删除` : '此操作不可恢复'}
+            description={row.product_count > 0
+              ? `该分类下 ${row.product_count} 个产品将被移入「未分类」`
+              : '此操作不可恢复'}
             onConfirm={() => deleteMut.mutate(row.id)}
-            disabled={row.product_count > 0}
             okText="删除"
             cancelText="取消"
           >
-            <Button type="link" danger icon={<DeleteOutlined />} disabled={row.product_count > 0}>
+            <Button type="link" danger icon={<DeleteOutlined />}>
               删除
             </Button>
           </Popconfirm>
