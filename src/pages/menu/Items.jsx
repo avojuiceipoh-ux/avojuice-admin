@@ -25,6 +25,7 @@ export default function Items() {
   const [editingId, setEditingId] = useState(null)
   const [filterCategory, setFilterCategory] = useState(null)
   const [searchText, setSearchText] = useState('')
+  const [sortBy, setSortBy] = useState('category')  // 默认按分类（自然分组）
 
   // ── Queries ────────────────────────────────
   const productsQuery = useQuery({
@@ -39,9 +40,9 @@ export default function Items() {
   const products = productsQuery.data ?? []
   const categories = categoriesQuery.data ?? []
 
-  // ── Filter ─────────────────────────────────
+  // ── Filter + Sort ──────────────────────────
   const filteredProducts = useMemo(() => {
-    let list = products
+    let list = [...products]
     if (filterCategory) list = list.filter((p) => p.category_id === filterCategory)
     if (searchText.trim()) {
       const q = searchText.toLowerCase()
@@ -52,8 +53,42 @@ export default function Items() {
           p.sku?.toLowerCase().includes(q),
       )
     }
+
+    // 排序（使用 zh-CN locale 让中文按拼音排）
+    const cn = (a, b) => (a ?? '').localeCompare(b ?? '', 'zh-CN')
+    switch (sortBy) {
+      case 'category':
+        // 按 分类 → 同分类内按 sort_order → 再按名字
+        list.sort((a, b) => {
+          const c = (a.category_id ?? 999) - (b.category_id ?? 999)
+          if (c !== 0) return c
+          const s = (a.sort_order ?? 0) - (b.sort_order ?? 0)
+          if (s !== 0) return s
+          return cn(a.name_cn, b.name_cn)
+        })
+        break
+      case 'name_asc':
+        list.sort((a, b) => cn(a.name_cn, b.name_cn))
+        break
+      case 'name_desc':
+        list.sort((a, b) => cn(b.name_cn, a.name_cn))
+        break
+      case 'price_asc':
+        list.sort((a, b) => Number(a.price ?? 0) - Number(b.price ?? 0))
+        break
+      case 'price_desc':
+        list.sort((a, b) => Number(b.price ?? 0) - Number(a.price ?? 0))
+        break
+      case 'updated':
+        list.sort((a, b) =>
+          new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime()
+        )
+        break
+      default:
+        break
+    }
     return list
-  }, [products, filterCategory, searchText])
+  }, [products, filterCategory, searchText, sortBy])
 
   // ── Mutations ──────────────────────────────
   const deleteMut = useMutation({
@@ -198,7 +233,7 @@ export default function Items() {
         </Button>
       </div>
 
-      {/* Filter */}
+      {/* Filter + Sort */}
       <Space style={{ marginBottom: 16 }} wrap>
         <Input
           prefix={<SearchOutlined />}
@@ -215,6 +250,19 @@ export default function Items() {
           value={filterCategory}
           onChange={setFilterCategory}
           options={categories.map((c) => ({ value: c.id, label: `${c.name_cn} (${c.product_count})` }))}
+        />
+        <Select
+          value={sortBy}
+          onChange={setSortBy}
+          style={{ width: 180 }}
+          options={[
+            { value: 'category',   label: '排序：按分类（默认）' },
+            { value: 'name_asc',   label: '排序：名字 A→Z' },
+            { value: 'name_desc',  label: '排序：名字 Z→A' },
+            { value: 'price_asc',  label: '排序：价格 低→高' },
+            { value: 'price_desc', label: '排序：价格 高→低' },
+            { value: 'updated',    label: '排序：最近更新' },
+          ]}
         />
         <Text type="secondary">显示 {filteredProducts.length} / {products.length}</Text>
       </Space>
