@@ -48,3 +48,9 @@ body {
 .ant-layout-sider {
   box-shadow: 2px 0 8px rgba(0,0,0,0.06);
 }
+
+/* Select/Cascader 下拉面板 — 浅绿色阴影 */
+.ant-select-dropdown,
+.ant-cascader-dropdown {
+  box-shadow: 0 6px 16px rgba(82, 196, 26, 0.15), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
