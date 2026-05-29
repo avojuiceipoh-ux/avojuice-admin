@@ -55,8 +55,9 @@ body {
   box-shadow: 0 6px 16px rgba(82, 196, 26, 0.15), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* 下拉选项 hover/active — 浅绿色底色 */
+/* 下拉选项 hover/active/selected — 浅绿色底色 */
 .ant-select-item-option-active:not(.ant-select-item-option-disabled),
-.ant-select-item-option:hover:not(.ant-select-item-option-disabled) {
+.ant-select-item-option:hover:not(.ant-select-item-option-disabled),
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   background-color: #f6ffed !important;
 }
