@@ -195,6 +195,17 @@ export const settingsAPI = {
     api.patch(`/admin/settings/${namespace}`, data, { params: { outlet_id } }),
 }
 
+// ── Upload ────────────────────────────────────────────
+export const uploadAPI = {
+  logo: (file) => {
+    const fd = new FormData()
+    fd.append('logo', file)
+    return api.post('/admin/upload/logo', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+}
+
 // ── Outlets V2 ─────────────────────────────────────────
 export const outletsAPI = {
   list: () => api.get('/outlets'),

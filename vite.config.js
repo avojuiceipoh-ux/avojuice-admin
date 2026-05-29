@@ -11,6 +11,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api-proxy/, ''),
       },
+      '/uploads': {
+        target: 'https://avojuice-backend-production.up.railway.app',
+        changeOrigin: true,
+      },
     },
   },
 })

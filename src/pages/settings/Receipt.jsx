@@ -1,14 +1,23 @@
-import React, { useEffect } from 'react'
-import { Card, Form, Input, Button, Switch, Radio, message, Typography, Space, Divider } from 'antd'
-import { PrinterOutlined, SaveOutlined } from '@ant-design/icons'
+import React, { useEffect, useState } from 'react'
+import { Card, Form, Input, Button, Switch, Radio, Upload, message, Typography, Space, Divider } from 'antd'
+import { PrinterOutlined, SaveOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { settingsAPI } from '../../services/api'
+import { settingsAPI, uploadAPI } from '../../services/api'
 
 const { Title, Text } = Typography
+
+function beforeUpload(file) {
+  const isImage = ['image/png', 'image/jpeg', 'image/webp'].includes(file.type)
+  if (!isImage) { message.error('仅支持 PNG / JPG / WebP'); return false }
+  const isLt2M = file.size / 1024 / 1024 < 2
+  if (!isLt2M) { message.error('文件需小于 2MB'); return false }
+  return true
+}
 
 export default function ReceiptSettings() {
   const qc = useQueryClient()
   const [form] = Form.useForm()
+  const [uploading, setUploading] = useState(false)
 
   const query = useQuery({
     queryKey: ['settings-receipt'],
@@ -17,10 +26,7 @@ export default function ReceiptSettings() {
 
   useEffect(() => {
     if (query.data) {
-      form.setFieldsValue({
-        ...query.data,
-        // 这些是 JSON 反序列化后的值
-      })
+      form.setFieldsValue({ ...query.data })
     }
   }, [query.data])
 
@@ -30,7 +36,25 @@ export default function ReceiptSettings() {
     onError: () => message.error('保存失败'),
   })
 
+  const handleUpload = async (options) => {
+    const { file, onSuccess, onError } = options
+    setUploading(true)
+    try {
+      const res = await uploadAPI.logo(file)
+      const url = res.data.logo_url
+      form.setFieldsValue({ logo_url: url })
+      onSuccess(res, file)
+      message.success('Logo 上传成功')
+    } catch (e) {
+      onError(e)
+      message.error('上传失败')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const values = Form.useWatch([], form)
+  const logoUrl = values?.logo_url
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
@@ -51,6 +75,27 @@ export default function ReceiptSettings() {
           <Form.Item label="顶部 Logo" name="show_logo" valuePropName="checked">
             <Switch />
           </Form.Item>
+
+          {values?.show_logo !== false && (
+            <Form.Item label="上传 Logo 图片" name="logo_url">
+              <Upload
+                listType="picture-card"
+                showUploadList={false}
+                customRequest={handleUpload}
+                beforeUpload={beforeUpload}
+                accept="image/png,image/jpeg,image/webp"
+              >
+                {logoUrl ? (
+                  <img src={logoUrl} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : (
+                  <div>
+                    {uploading ? <LoadingOutlined /> : <PlusOutlined />}
+                    <div style={{ marginTop: 8, fontSize: 12 }}>上传</div>
+                  </div>
+                )}
+              </Upload>
+            </Form.Item>
+          )}
 
           <Form.Item label="店铺信息（地址 / 电话 / SSM）" name="show_business_info" valuePropName="checked">
             <Switch />
@@ -94,7 +139,15 @@ export default function ReceiptSettings() {
             margin: '0 auto',
           }}
         >
-          {values?.show_logo !== false && <div style={{ textAlign: 'center', fontSize: 24 }}>🥑</div>}
+          {values?.show_logo !== false && (
+            <div style={{ textAlign: 'center', marginBottom: 4 }}>
+              {logoUrl ? (
+                <img src={logoUrl} alt="logo" style={{ height: 40, objectFit: 'contain' }} />
+              ) : (
+                <span style={{ fontSize: 24 }}>🥑</span>
+              )}
+            </div>
+          )}
           <div style={{ textAlign: 'center', fontWeight: 'bold' }}>爱我果饮 AvoJuice</div>
           {values?.show_business_info !== false && (
             <div style={{ textAlign: 'center', fontSize: 10, color: '#666' }}>
