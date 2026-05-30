@@ -9,6 +9,7 @@ import {
   UnorderedListOutlined,
   TeamOutlined,
   GiftOutlined,
+  PictureOutlined,
   LogoutOutlined,
   UserOutlined,
   MenuFoldOutlined,
@@ -97,6 +98,14 @@ const menuItems = [
     key: '/outlets',
     icon: <ShopOutlined />,
     label: '门店管理',
+  },
+  {
+    key: 'content-group',
+    icon: <PictureOutlined />,
+    label: 'App 内容',
+    children: [
+      { key: '/content/banners', label: '海报管理' },
+    ],
   },
   {
     key: 'settings-group',

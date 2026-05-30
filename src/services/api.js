@@ -206,6 +206,21 @@ export const uploadAPI = {
   },
 }
 
+// ── Banners（海报） ────────────────────────────────────
+export const bannersAPI = {
+  list: (placement) => api.get('/admin/banners', { params: placement ? { placement } : {} }),
+  create: (data) => api.post('/admin/banners', data),
+  update: (id, data) => api.patch(`/admin/banners/${id}`, data),
+  delete: (id) => api.delete(`/admin/banners/${id}`),
+  upload: (file) => {
+    const fd = new FormData()
+    fd.append('image', file)
+    return api.post('/admin/banners/upload', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+}
+
 // ── Outlets V2 ─────────────────────────────────────────
 export const outletsAPI = {
   list: () => api.get('/outlets'),

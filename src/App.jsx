@@ -47,6 +47,7 @@ import TaxSettings from './pages/settings/Tax'
 import LoyaltyGlobal from './pages/settings/LoyaltyGlobal'
 import Integrations from './pages/settings/Integrations'
 import Billing from './pages/settings/Billing'
+import Banners from './pages/Banners'
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem('avo_admin_token')
@@ -123,6 +124,9 @@ export default function App() {
 
           {/* ─── 门店管理 ───────────────────────────── */}
           <Route path="outlets" element={<Outlets />} />
+
+          {/* ─── App 内容运营 ─────────────────────────── */}
+          <Route path="content/banners" element={<Banners />} />
 
           {/* ─── 设置 ───────────────────────────────── */}
           <Route path="settings/business" element={<BusinessSettings />} />
