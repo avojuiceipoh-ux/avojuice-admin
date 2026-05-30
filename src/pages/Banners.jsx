@@ -10,6 +10,7 @@ import {
   Card, Tabs, Table, Button, Modal, Form, Input, Switch, Upload, message,
   Image, Space, InputNumber, Select, DatePicker, Tag, Popconfirm, Empty, Typography
 } from 'antd'
+import ImgCrop from 'antd-img-crop'
 import {
   PictureOutlined, PlusOutlined, EditOutlined, DeleteOutlined,
   LoadingOutlined, UploadOutlined,
@@ -214,9 +215,10 @@ export default function Banners() {
             name="image_url"
             rules={[{ required: true, message: '请上传图片' }]}
             extra={tab === 'home'
-              ? '建议尺寸 1080 × 480 (16:7)，PNG / JPG / WebP，5MB 以内'
+              ? '正方形，建议 1080 × 1080，PNG / JPG / WebP，5MB 以内'
               : '建议尺寸 1080 × 360，PNG / JPG / WebP，5MB 以内'}
           >
+            <ImgCrop aspect={1} quality={0.9}>
             <Upload
               listType="picture-card"
               showUploadList={false}
@@ -228,6 +230,7 @@ export default function Banners() {
                 ? <img src={imageUrl} alt="banner" style={{ width: '100%', borderRadius: 6 }} />
                 : <div>{uploading ? <LoadingOutlined /> : <UploadOutlined />}<div style={{ marginTop: 4 }}>上传</div></div>}
             </Upload>
+            </ImgCrop>
           </Form.Item>
 
           <Form.Item label="跳转类型" name="link_type">
