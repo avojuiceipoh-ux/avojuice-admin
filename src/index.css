@@ -79,6 +79,10 @@ body {
   .ant-table {
     min-width: 600px;
   }
+  .ant-table-cell {
+    white-space: nowrap;
+    word-break: keep-all;
+  }
 
   /* 登录卡片适配 */
   .login-card {

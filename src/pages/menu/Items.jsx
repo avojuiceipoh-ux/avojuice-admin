@@ -274,6 +274,7 @@ export default function Items() {
         dataSource={filteredProducts}
         pagination={{ pageSize: 20, showSizeChanger: true }}
         size="middle"
+        scroll={{ x: 700 }}
       />
 
       {/* 抽屉 — 新增 / 编辑 */}
