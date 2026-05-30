@@ -1,15 +1,11 @@
 import React, { useState } from 'react'
-import { Layout, Menu, Avatar, Dropdown, Typography, Space } from 'antd'
+import { Layout, Menu, Avatar, Dropdown, Typography, Space, Drawer, Button } from 'antd'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   DashboardOutlined,
   ShopOutlined,
-  CoffeeOutlined,
-  ShoppingCartOutlined,
   UnorderedListOutlined,
   TeamOutlined,
-  GiftOutlined,
-  PictureOutlined,
   LogoutOutlined,
   UserOutlined,
   MenuFoldOutlined,
@@ -18,6 +14,8 @@ import {
   IdcardOutlined,
   BarChartOutlined,
   SettingOutlined,
+  PictureOutlined,
+  MenuOutlined,
 } from '@ant-design/icons'
 
 const { Sider, Header, Content } = Layout
@@ -128,6 +126,8 @@ const menuItems = [
 
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false)
+  const [broken, setBroken] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -157,64 +157,107 @@ export default function AppLayout() {
     { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', danger: true },
   ]
 
+  const handleMenuClick = ({ key }) => {
+    if (key.startsWith('/')) {
+      navigate(key)
+      setMobileMenuOpen(false)
+    }
+  }
+
+  const menuContent = (
+    <>
+      <div style={{
+        height: 64,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: collapsed && !broken ? 'center' : 'flex-start',
+        padding: collapsed && !broken ? 0 : '0 20px',
+        borderBottom: '1px solid #f0f0f0',
+      }}>
+        <img
+          src="/logo.png"
+          alt="爱我果饮"
+          style={{ width: 32, height: 32, objectFit: 'contain' }}
+        />
+        {!(collapsed && !broken) && (
+          <Text strong style={{ marginLeft: 10, fontSize: 15, color: '#52c41a' }}>
+            爱我果饮
+          </Text>
+        )}
+      </div>
+      <Menu
+        mode="inline"
+        selectedKeys={selectedKeys}
+        defaultOpenKeys={broken ? undefined : defaultOpenKeys}
+        items={menuItems}
+        onClick={handleMenuClick}
+        style={{ border: 'none', marginTop: 8, paddingBottom: 24 }}
+      />
+    </>
+  )
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        trigger={null}
-        width={240}
-        style={{ background: '#fff', borderRight: '1px solid #f0f0f0' }}
-      >
-        {/* Logo */}
-        <div style={{
-          height: 64,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? 0 : '0 20px',
-          borderBottom: '1px solid #f0f0f0',
-        }}>
-          <img
-            src="/logo.png"
-            alt="爱我果饮"
-            style={{ width: 32, height: 32, objectFit: 'contain' }}
-          />
-          {!collapsed && (
-            <Text strong style={{ marginLeft: 10, fontSize: 15, color: '#52c41a' }}>
-              爱我果饮
-            </Text>
-          )}
-        </div>
+      {/* Desktop sidebar */}
+      {!broken && (
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          trigger={null}
+          width={240}
+          breakpoint="lg"
+          onBreakpoint={(b) => setBroken(b)}
+          style={{ background: '#fff', borderRight: '1px solid #f0f0f0' }}
+        >
+          {menuContent}
+        </Sider>
+      )}
 
-        <Menu
-          mode="inline"
-          selectedKeys={selectedKeys}
-          defaultOpenKeys={defaultOpenKeys}
-          items={menuItems}
-          onClick={({ key }) => key.startsWith('/') && navigate(key)}
-          style={{ border: 'none', marginTop: 8, paddingBottom: 24 }}
-        />
-      </Sider>
+      {/* Mobile drawer menu */}
+      {broken && (
+        <Drawer
+          placement="left"
+          closable={false}
+          onClose={() => setMobileMenuOpen(false)}
+          open={mobileMenuOpen}
+          width={256}
+          styles={{ body: { padding: 0 } }}
+        >
+          {menuContent}
+        </Drawer>
+      )}
 
       <Layout>
         <Header style={{
           background: '#fff',
-          padding: '0 24px',
+          padding: broken ? '0 16px' : '0 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid #f0f0f0',
           height: 64,
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
         }}>
           <Space>
-            {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-              style: { fontSize: 18, cursor: 'pointer', color: '#666' },
-              onClick: () => setCollapsed(!collapsed),
-            })}
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              管理后台 · Production
-            </Text>
+            {broken ? (
+              <Button
+                type="text"
+                icon={<MenuOutlined />}
+                onClick={() => setMobileMenuOpen(true)}
+              />
+            ) : (
+              React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
+                style: { fontSize: 18, cursor: 'pointer', color: '#666' },
+                onClick: () => setCollapsed(!collapsed),
+              })
+            )}
+            {!broken && (
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                管理后台 · Production
+              </Text>
+            )}
           </Space>
 
           <Dropdown
@@ -231,7 +274,7 @@ export default function AppLayout() {
           </Dropdown>
         </Header>
 
-        <Content style={{ margin: 24, minHeight: 280 }}>
+        <Content style={{ margin: broken ? 16 : 24, minHeight: 280 }}>
           <Outlet />
         </Content>
       </Layout>
