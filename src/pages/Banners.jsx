@@ -216,9 +216,9 @@ export default function Banners() {
             rules={[{ required: true, message: '请上传图片' }]}
             extra={tab === 'home'
               ? '正方形，建议 1080 × 1080，PNG / JPG / WebP，5MB 以内'
-              : '建议尺寸 1080 × 360，PNG / JPG / WebP，5MB 以内'}
+              : '宽幅横幅，建议 990 × 300 (3.3:1)，PNG / JPG / WebP，5MB 以内'}
           >
-            <ImgCrop aspect={1} quality={0.9}>
+            <ImgCrop aspect={tab === 'home' ? 1 : 330/100} quality={0.9}>
             <Upload
               listType="picture-card"
               showUploadList={false}
