@@ -44,10 +44,12 @@ export default function Modifiers() {
   const saveMut = useMutation({
     mutationFn: async (values) => {
       const payload = { ...values }
-      if (!payload.product_id) delete payload.product_id
+      if (payload._is_global) payload.product_id = null
+      delete payload._is_global
       if (editingGroup) {
         await modifiersAPI.updateGroup(editingGroup.id, payload)
       } else {
+        if (!payload.product_id) delete payload.product_id
         await modifiersAPI.createGroup(payload)
       }
     },
@@ -66,7 +68,11 @@ export default function Modifiers() {
   const openNew = () => {
     setEditingGroup(null)
     form.resetFields()
-    form.setFieldsValue({ is_required: false, selection_type: 'multi', min_select: 0, max_select: 99, sort_order: groups.length, product_id: null })
+    form.setFieldsValue({
+      is_required: false, selection_type: 'multi',
+      min_select: 0, max_select: 99,
+      sort_order: groups.length, product_id: null, _is_global: true,
+    })
     setModalOpen(true)
   }
 
@@ -75,6 +81,7 @@ export default function Modifiers() {
     form.setFieldsValue({
       name: group.name,
       product_id: group.product_id || null,
+      _is_global: !group.product_id,
       is_required: group.is_required,
       selection_type: group.selection_type,
       min_select: group.min_select ?? 0,
@@ -159,15 +166,36 @@ export default function Modifiers() {
           <Form.Item label="加料组名称" name="name" rules={[{ required: true, message: '必填' }]}>
             <Input placeholder="加料 / Topping" />
           </Form.Item>
-          <Form.Item label="关联产品（可选，留空=全局）" name="product_id">
-            <Select
-              allowClear
-              placeholder="选择产品（不选则为全局加料）"
-              showSearch
-              optionFilterProp="label"
-              onChange={(val) => form.setFieldValue('product_id', val || undefined)}
-              options={products.map((p) => ({ value: p.id, label: p.name_cn }))}
-            />
+
+          {/* 防误绑：默认全局，关掉开关才显示产品下拉 */}
+          <Form.Item
+            label="全局加料（推荐 — 所有产品共享，如珍珠、椰果）"
+            name="_is_global"
+            valuePropName="checked"
+            extra="关掉此开关后，才能把这个加料组绑给某个具体产品"
+          >
+            <Switch checkedChildren="全局" unCheckedChildren="单产品" />
+          </Form.Item>
+
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, cur) => prev._is_global !== cur._is_global}
+          >
+            {({ getFieldValue }) => getFieldValue('_is_global') ? null : (
+              <Form.Item
+                label="关联产品"
+                name="product_id"
+                rules={[{ required: true, message: '关掉全局开关后必须选一个产品' }]}
+              >
+                <Select
+                  allowClear
+                  placeholder="选择该加料组只属于的产品"
+                  showSearch
+                  optionFilterProp="label"
+                  options={products.map((p) => ({ value: p.id, label: p.name_cn }))}
+                />
+              </Form.Item>
+            )}
           </Form.Item>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <Form.Item label="必选" name="is_required" valuePropName="checked">
