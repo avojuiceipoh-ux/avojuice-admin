@@ -133,7 +133,13 @@ function ReceiptSection({ sec, values }) {
 
     case 'qr':
       return values?.qr_url ? (
-        <div style={{ textAlign: align, marginTop: 8, fontSize: fs }}>[QR Code]</div>
+        <div style={{ textAlign: align, marginTop: 8 }}>
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(values.qr_url)}`}
+            alt="QR"
+            style={{ width: 80, height: 80 }}
+          />
+        </div>
       ) : null
 
     default:
