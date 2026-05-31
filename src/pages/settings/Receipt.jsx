@@ -38,7 +38,7 @@ const HIDDEN_SECTIONS = [
   { id: 'total',         visible: false, fontSize: 'medium', align: 'right' },
 ]
 
-const FONT_SIZE_MAP  = { small: 9, medium: 11, large: 14 }
+const FONT_SIZE_MAP  = { small: 8, medium: 12, large: 16 }
 const FONT_LABELS     = { small: '小', medium: '中', large: '大' }
 const ALIGN_LABELS    = { left: '靠左', center: '居中', right: '靠右' }
 
@@ -61,9 +61,9 @@ function ReceiptSection({ sec, values }) {
       return (
         <div style={{ textAlign: align, marginBottom: 4 }}>
           {values?.logo_url ? (
-            <img src={values.logo_url} alt="logo" style={{ height: 40, objectFit: 'contain' }} />
+            <img src={values.logo_url} alt="logo" style={{ height: 64, maxWidth: '80%', objectFit: 'contain' }} />
           ) : (
-            <span style={{ fontSize: 24 }}>🥑</span>
+            <span style={{ fontSize: 32 }}>🥑</span>
           )}
         </div>
       )
@@ -369,7 +369,6 @@ export default function ReceiptSettings() {
             border: '1px dashed #ccc',
             padding: 16,
             fontFamily: 'monospace',
-            fontSize: 11,
             lineHeight: 1.5,
             width: values?.paper_width === '80mm' ? 320 : 240,
             margin: '0 auto',
