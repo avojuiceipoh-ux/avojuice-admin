@@ -14,10 +14,10 @@ const SECTION_META = {
   business_name: { label: '店铺名称',      type: 'text',      contentKey: 'business_name' },
   business_info: { label: '店铺信息',      type: 'multiline', contentKey: 'business_info' },
   pickup_code:   { label: '取单号',        type: 'auto' },
-  header_text:   { label: '顶部文案',      type: 'text',      contentKey: 'header_text' },
+  header_text:   { label: '顶部文案',      type: 'multiline', contentKey: 'header_text' },
   items:         { label: '订单内容',      type: 'auto' },
   total:         { label: '合计',         type: 'auto' },
-  footer_text:   { label: '底部文案',      type: 'text',      contentKey: 'footer_text' },
+  footer_text:   { label: '底部文案',      type: 'multiline', contentKey: 'footer_text' },
   qr:            { label: 'QR 码',        type: 'text',      contentKey: 'qr_url' },
 }
 
