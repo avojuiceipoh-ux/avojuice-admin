@@ -21,25 +21,26 @@ const SECTION_META = {
   qr:            { label: 'QR 码',        type: 'text',      contentKey: 'qr_url' },
 }
 
-// Andrew 偏好的默认顺序
+// Andrew 偏好的默认顺序（含默认对齐）
 const DEFAULT_SECTIONS = [
-  { id: 'logo',          visible: true,  fontSize: 'medium' },
-  { id: 'pickup_code',   visible: true,  fontSize: 'medium' },
-  { id: 'header_text',   visible: true,  fontSize: 'medium' },
-  { id: 'items',         visible: true,  fontSize: 'medium' },
-  { id: 'footer_text',   visible: true,  fontSize: 'small' },
-  { id: 'qr',            visible: true,  fontSize: 'medium' },
+  { id: 'logo',          visible: true,  fontSize: 'medium', align: 'center' },
+  { id: 'pickup_code',   visible: true,  fontSize: 'medium', align: 'left' },
+  { id: 'header_text',   visible: true,  fontSize: 'medium', align: 'center' },
+  { id: 'items',         visible: true,  fontSize: 'medium', align: 'left' },
+  { id: 'footer_text',   visible: true,  fontSize: 'small',  align: 'center' },
+  { id: 'qr',            visible: true,  fontSize: 'medium', align: 'center' },
 ]
 
 // 默认隐藏但可启用的区块
 const HIDDEN_SECTIONS = [
-  { id: 'business_name', visible: false, fontSize: 'medium' },
-  { id: 'business_info', visible: false, fontSize: 'small' },
-  { id: 'total',         visible: false, fontSize: 'medium' },
+  { id: 'business_name', visible: false, fontSize: 'medium', align: 'center' },
+  { id: 'business_info', visible: false, fontSize: 'small',  align: 'center' },
+  { id: 'total',         visible: false, fontSize: 'medium', align: 'right' },
 ]
 
-const FONT_SIZE_MAP = { small: 9, medium: 11, large: 14 }
-const FONT_SIZE_LABELS = { small: '小', medium: '中', large: '大' }
+const FONT_SIZE_MAP  = { small: 9, medium: 11, large: 14 }
+const FONT_LABELS     = { small: '小', medium: '中', large: '大' }
+const ALIGN_LABELS    = { left: '靠左', center: '居中', right: '靠右' }
 
 // ─── 辅助 ───────────────────────────────────────
 function beforeUpload(file) {
@@ -52,12 +53,13 @@ function beforeUpload(file) {
 
 // ─── 预览区块渲染器 ──────────────────────────────
 function ReceiptSection({ sec, values }) {
-  const fs = FONT_SIZE_MAP[sec.fontSize] || 11
+  const fs    = FONT_SIZE_MAP[sec.fontSize] || 11
+  const align = sec.align || 'center'
 
   switch (sec.id) {
     case 'logo':
       return (
-        <div style={{ textAlign: 'center', marginBottom: 4 }}>
+        <div style={{ textAlign: align, marginBottom: 4 }}>
           {values?.logo_url ? (
             <img src={values.logo_url} alt="logo" style={{ height: 40, objectFit: 'contain' }} />
           ) : (
@@ -68,14 +70,14 @@ function ReceiptSection({ sec, values }) {
 
     case 'business_name':
       return (
-        <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: fs }}>
+        <div style={{ textAlign: align, fontWeight: 'bold', fontSize: fs }}>
           {values?.business_name || '爱我果饮 AvoJuice'}
         </div>
       )
 
     case 'business_info':
       return (
-        <div style={{ textAlign: 'center', fontSize: fs, color: '#666', whiteSpace: 'pre-line' }}>
+        <div style={{ textAlign: align, fontSize: fs, color: '#666', whiteSpace: 'pre-line' }}>
           {values?.business_info || 'UTAR 校园\n+60 12-XXX XXXX\nSSM: 202401234567'}
         </div>
       )
@@ -84,14 +86,14 @@ function ReceiptSection({ sec, values }) {
       return (
         <>
           <hr />
-          <div style={{ fontSize: fs }}>取单号：<strong>123456</strong></div>
-          <div style={{ fontSize: fs }}>2026-05-15 14:30</div>
+          <div style={{ fontSize: fs, textAlign: align }}><strong>123456</strong></div>
+          <div style={{ fontSize: fs, textAlign: align }}>2026-05-15 14:30</div>
         </>
       )
 
     case 'header_text':
       return values?.header_text ? (
-        <div style={{ textAlign: 'center', marginTop: 4, fontSize: fs }}>{values.header_text}</div>
+        <div style={{ textAlign: align, marginTop: 4, fontSize: fs }}>{values.header_text}</div>
       ) : null
 
     case 'items':
@@ -105,7 +107,6 @@ function ReceiptSection({ sec, values }) {
           <div style={{ paddingLeft: 16, fontSize: Math.max(fs - 2, 8), color: '#666' }}>
             少糖 / 少冰 / +珍珠
           </div>
-          {/* 合计内置在 items 区块之后 */}
           <hr />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: fs }}>
             <span>合计</span>
@@ -126,13 +127,13 @@ function ReceiptSection({ sec, values }) {
       return values?.footer_text ? (
         <>
           <hr />
-          <div style={{ textAlign: 'center', fontSize: fs }}>{values.footer_text}</div>
+          <div style={{ textAlign: align, fontSize: fs }}>{values.footer_text}</div>
         </>
       ) : null
 
     case 'qr':
       return values?.qr_url ? (
-        <div style={{ textAlign: 'center', marginTop: 8, fontSize: fs }}>[QR Code]</div>
+        <div style={{ textAlign: align, marginTop: 8, fontSize: fs }}>[QR Code]</div>
       ) : null
 
     default:
@@ -145,7 +146,6 @@ export default function ReceiptSettings() {
   const qc = useQueryClient()
   const [form] = Form.useForm()
   const [uploading, setUploading] = useState(false)
-  // template_sections 独立于 Form 管理（排序/显隐/字号）
   const [sections, setSections] = useState(DEFAULT_SECTIONS)
 
   const query = useQuery({
@@ -159,7 +159,6 @@ export default function ReceiptSettings() {
 
     // 恢复 template_sections，否则用默认
     if (data.template_sections && Array.isArray(data.template_sections)) {
-      // 合并：已保存的 section + 可能新增的 HIDDEN_SECTIONS
       const saved = data.template_sections
       const savedIds = new Set(saved.map((s) => s.id))
       const merged = [...saved]
@@ -170,21 +169,18 @@ export default function ReceiptSettings() {
       delete data.template_sections
     }
 
-    // 兼容旧版 boolean 开关 → 迁移到 sections
+    // 兼容旧版 boolean 开关
     if (data.show_logo !== undefined) {
-      setSections((prev) => {
-        const hasLogo = prev.find((s) => s.id === 'logo')
-        return hasLogo ? prev.map((s) => s.id === 'logo' ? { ...s, visible: data.show_logo !== false } : s) : prev
-      })
+      setSections((prev) =>
+        prev.map((s) => s.id === 'logo' ? { ...s, visible: data.show_logo !== false } : s))
       delete data.show_logo
     }
     if (data.show_business_info !== undefined) {
       setSections((prev) => {
         const hasBI = prev.find((s) => s.id === 'business_info')
         if (hasBI) return prev.map((s) => s.id === 'business_info' ? { ...s, visible: data.show_business_info !== false } : s)
-        // 如果旧版开了 business_info 但 sections 里没有，加上
         return data.show_business_info !== false
-          ? [...prev, { id: 'business_info', visible: true, fontSize: 'small' }]
+          ? [...prev, { id: 'business_info', visible: true, fontSize: 'small', align: 'center' }]
           : prev
       })
       delete data.show_business_info
@@ -199,14 +195,13 @@ export default function ReceiptSettings() {
     onError: () => message.error('保存失败'),
   })
 
+  // Logo 上传 — 参照 Banners.jsx 模式：onSuccess 传 res.data，让 Form.Item 接管
   const handleUpload = async (options) => {
     const { file, onSuccess, onError } = options
     setUploading(true)
     try {
       const res = await uploadAPI.logo(file)
-      const url = res.data.logo_url
-      form.setFieldsValue({ logo_url: url })
-      onSuccess(res, file)
+      onSuccess(res.data)
       message.success('Logo 上传成功')
     } catch (e) {
       onError(e)
@@ -217,7 +212,6 @@ export default function ReceiptSettings() {
   }
 
   const handleSave = (formValues) => {
-    // 只保存前端管理的字段 + sections
     updateMut.mutate({
       ...formValues,
       template_sections: sections,
@@ -239,8 +233,11 @@ export default function ReceiptSettings() {
   const setFontSize = (id, fontSize) => {
     setSections((prev) => prev.map((s) => s.id === id ? { ...s, fontSize } : s))
   }
+  const setAlign = (id, align) => {
+    setSections((prev) => prev.map((s) => s.id === id ? { ...s, align } : s))
+  }
 
-  const values = Form.useWatch([], form)
+  const values  = Form.useWatch([], form)
   const logoUrl = values?.logo_url
 
   return (
@@ -251,7 +248,7 @@ export default function ReceiptSettings() {
           <PrinterOutlined /> 收据模板
         </Title>
         <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 24 }}>
-          拖拽排序区块 · 自定义字体大小 · 实时预览
+          排序区块 · 字体大小 · 对齐方向 · 实时预览
         </Text>
 
         <Form form={form} layout="vertical" onFinish={handleSave}>
@@ -273,70 +270,70 @@ export default function ReceiptSettings() {
 
             return (
               <div key={sec.id} style={{ marginBottom: 12 }}>
-                {/* 区块行：排序 / 标签 / 显隐 / 字号 */}
+                {/* 区块行：排序 / 标签 / 显隐 / 对齐 / 字号 */}
                 <div style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
+                  display: 'flex', alignItems: 'center', gap: 6,
                   padding: '6px 8px', background: '#fafafa', borderRadius: 6,
                   border: sec.visible ? '1px solid #d9d9d9' : '1px solid #f0f0f0',
                   opacity: sec.visible ? 1 : 0.5,
                 }}>
                   <Button.Group size="small">
-                    <Button
-                      icon={<UpOutlined />}
-                      disabled={idx === 0}
-                      onClick={() => moveSection(idx, -1)}
-                    />
-                    <Button
-                      icon={<DownOutlined />}
-                      disabled={idx === sections.length - 1}
-                      onClick={() => moveSection(idx, 1)}
-                    />
+                    <Button icon={<UpOutlined />} disabled={idx === 0} onClick={() => moveSection(idx, -1)} />
+                    <Button icon={<DownOutlined />} disabled={idx === sections.length - 1} onClick={() => moveSection(idx, 1)} />
                   </Button.Group>
 
                   <span style={{ flex: 1, fontWeight: 500, fontSize: 13, marginLeft: 4 }}>
                     {meta.label}
                   </span>
 
-                  <Switch
-                    size="small"
-                    checked={sec.visible}
-                    onChange={(v) => toggleSection(sec.id, v)}
-                  />
+                  <Switch size="small" checked={sec.visible} onChange={(v) => toggleSection(sec.id, v)} />
 
-                  <Select
-                    size="small"
-                    value={sec.fontSize}
-                    onChange={(v) => setFontSize(sec.id, v)}
-                    style={{ width: 68 }}
-                  >
-                    <Option value="small">{FONT_SIZE_LABELS.small}</Option>
-                    <Option value="medium">{FONT_SIZE_LABELS.medium}</Option>
-                    <Option value="large">{FONT_SIZE_LABELS.large}</Option>
+                  {/* 对齐 */}
+                  <Select size="small" value={sec.align || 'center'} onChange={(v) => setAlign(sec.id, v)} style={{ width: 68 }}>
+                    <Option value="left">{ALIGN_LABELS.left}</Option>
+                    <Option value="center">{ALIGN_LABELS.center}</Option>
+                    <Option value="right">{ALIGN_LABELS.right}</Option>
+                  </Select>
+
+                  {/* 字号 */}
+                  <Select size="small" value={sec.fontSize} onChange={(v) => setFontSize(sec.id, v)} style={{ width: 60 }}>
+                    <Option value="small">{FONT_LABELS.small}</Option>
+                    <Option value="medium">{FONT_LABELS.medium}</Option>
+                    <Option value="large">{FONT_LABELS.large}</Option>
                   </Select>
                 </div>
 
-                {/* 内容编辑区（仅显示在可见 + 有 contentKey 的区块下方） */}
+                {/* 内容编辑区 */}
                 {sec.visible && meta.contentKey && (
                   <div style={{ marginTop: 8, paddingLeft: 4 }}>
                     {meta.type === 'image' && (
-                      <ImgCrop aspect={1} quality={0.9}>
-                        <Upload
-                          listType="picture-card"
-                          showUploadList={false}
-                          customRequest={handleUpload}
-                          beforeUpload={beforeUpload}
-                          accept="image/png,image/jpeg,image/webp"
-                        >
-                          {logoUrl ? (
-                            <img src={logoUrl} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                          ) : (
-                            <div>
-                              {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-                              <div style={{ marginTop: 8, fontSize: 12 }}>上传</div>
-                            </div>
-                          )}
-                        </Upload>
-                      </ImgCrop>
+                      <Form.Item name={meta.contentKey} noStyle
+                        getValueFromEvent={(e) => {
+                          // 从 Upload onChange 中提取 URL 字符串
+                          if (Array.isArray(e) && e.length > 0) return e[0]?.response?.logo_url || e[0]?.url || ''
+                          if (e?.file?.response?.logo_url) return e.file.response.logo_url
+                          return e
+                        }}
+                      >
+                        <ImgCrop aspect={1} quality={0.9}>
+                          <Upload
+                            listType="picture-card"
+                            showUploadList={false}
+                            customRequest={handleUpload}
+                            beforeUpload={beforeUpload}
+                            accept="image/png,image/jpeg,image/webp"
+                          >
+                            {logoUrl ? (
+                              <img src={logoUrl} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            ) : (
+                              <div>
+                                {uploading ? <LoadingOutlined /> : <PlusOutlined />}
+                                <div style={{ marginTop: 8, fontSize: 12 }}>上传</div>
+                              </div>
+                            )}
+                          </Upload>
+                        </ImgCrop>
+                      </Form.Item>
                     )}
                     {meta.type === 'text' && (
                       <Form.Item name={meta.contentKey} noStyle>
