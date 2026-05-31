@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Card, Form, Input, Button, Switch, Radio, Upload, message, Typography, Space, Divider } from 'antd'
 import { PrinterOutlined, SaveOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import ImgCrop from 'antd-img-crop'
 import { settingsAPI, uploadAPI } from '../../services/api'
 
 const { Title, Text } = Typography
@@ -78,6 +79,7 @@ export default function ReceiptSettings() {
 
           {values?.show_logo !== false && (
             <Form.Item label="上传 Logo 图片" name="logo_url">
+              <ImgCrop aspect={1} quality={0.9}>
               <Upload
                 listType="picture-card"
                 showUploadList={false}
@@ -94,6 +96,7 @@ export default function ReceiptSettings() {
                   </div>
                 )}
               </Upload>
+              </ImgCrop>
             </Form.Item>
           )}
 
