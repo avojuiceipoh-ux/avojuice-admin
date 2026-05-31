@@ -1,12 +1,47 @@
 import React, { useEffect, useState } from 'react'
-import { Card, Form, Input, Button, Switch, Radio, Upload, message, Typography, Space, Divider } from 'antd'
-import { PrinterOutlined, SaveOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Card, Form, Input, Button, Switch, Radio, Upload, Select, message, Typography, Space, Divider } from 'antd'
+import { PrinterOutlined, SaveOutlined, PlusOutlined, LoadingOutlined, UpOutlined, DownOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import ImgCrop from 'antd-img-crop'
 import { settingsAPI, uploadAPI } from '../../services/api'
 
 const { Title, Text } = Typography
+const { Option } = Select
 
+// ─── 区块定义 ───────────────────────────────────
+const SECTION_META = {
+  logo:          { label: 'Logo',         type: 'image',     contentKey: 'logo_url' },
+  business_name: { label: '店铺名称',      type: 'text',      contentKey: 'business_name' },
+  business_info: { label: '店铺信息',      type: 'multiline', contentKey: 'business_info' },
+  pickup_code:   { label: '取单号',        type: 'auto' },
+  header_text:   { label: '顶部文案',      type: 'text',      contentKey: 'header_text' },
+  items:         { label: '订单内容',      type: 'auto' },
+  total:         { label: '合计',         type: 'auto' },
+  footer_text:   { label: '底部文案',      type: 'text',      contentKey: 'footer_text' },
+  qr:            { label: 'QR 码',        type: 'text',      contentKey: 'qr_url' },
+}
+
+// Andrew 偏好的默认顺序
+const DEFAULT_SECTIONS = [
+  { id: 'logo',          visible: true,  fontSize: 'medium' },
+  { id: 'pickup_code',   visible: true,  fontSize: 'medium' },
+  { id: 'header_text',   visible: true,  fontSize: 'medium' },
+  { id: 'items',         visible: true,  fontSize: 'medium' },
+  { id: 'footer_text',   visible: true,  fontSize: 'small' },
+  { id: 'qr',            visible: true,  fontSize: 'medium' },
+]
+
+// 默认隐藏但可启用的区块
+const HIDDEN_SECTIONS = [
+  { id: 'business_name', visible: false, fontSize: 'medium' },
+  { id: 'business_info', visible: false, fontSize: 'small' },
+  { id: 'total',         visible: false, fontSize: 'medium' },
+]
+
+const FONT_SIZE_MAP = { small: 9, medium: 11, large: 14 }
+const FONT_SIZE_LABELS = { small: '小', medium: '中', large: '大' }
+
+// ─── 辅助 ───────────────────────────────────────
 function beforeUpload(file) {
   const isImage = ['image/png', 'image/jpeg', 'image/webp'].includes(file.type)
   if (!isImage) { message.error('仅支持 PNG / JPG / WebP'); return false }
@@ -15,10 +50,103 @@ function beforeUpload(file) {
   return true
 }
 
+// ─── 预览区块渲染器 ──────────────────────────────
+function ReceiptSection({ sec, values }) {
+  const fs = FONT_SIZE_MAP[sec.fontSize] || 11
+
+  switch (sec.id) {
+    case 'logo':
+      return (
+        <div style={{ textAlign: 'center', marginBottom: 4 }}>
+          {values?.logo_url ? (
+            <img src={values.logo_url} alt="logo" style={{ height: 40, objectFit: 'contain' }} />
+          ) : (
+            <span style={{ fontSize: 24 }}>🥑</span>
+          )}
+        </div>
+      )
+
+    case 'business_name':
+      return (
+        <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: fs }}>
+          {values?.business_name || '爱我果饮 AvoJuice'}
+        </div>
+      )
+
+    case 'business_info':
+      return (
+        <div style={{ textAlign: 'center', fontSize: fs, color: '#666', whiteSpace: 'pre-line' }}>
+          {values?.business_info || 'UTAR 校园\n+60 12-XXX XXXX\nSSM: 202401234567'}
+        </div>
+      )
+
+    case 'pickup_code':
+      return (
+        <>
+          <hr />
+          <div style={{ fontSize: fs }}>取单号：<strong>123456</strong></div>
+          <div style={{ fontSize: fs }}>2026-05-15 14:30</div>
+        </>
+      )
+
+    case 'header_text':
+      return values?.header_text ? (
+        <div style={{ textAlign: 'center', marginTop: 4, fontSize: fs }}>{values.header_text}</div>
+      ) : null
+
+    case 'items':
+      return (
+        <>
+          <hr />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: fs }}>
+            <span>× 1 招牌牛油果奶昔</span>
+            <span>12.00</span>
+          </div>
+          <div style={{ paddingLeft: 16, fontSize: Math.max(fs - 2, 8), color: '#666' }}>
+            少糖 / 少冰 / +珍珠
+          </div>
+          {/* 合计内置在 items 区块之后 */}
+          <hr />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: fs }}>
+            <span>合计</span>
+            <span>RM 13.00</span>
+          </div>
+        </>
+      )
+
+    case 'total':
+      return (
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: fs }}>
+          <span>合计</span>
+          <span>RM 13.00</span>
+        </div>
+      )
+
+    case 'footer_text':
+      return values?.footer_text ? (
+        <>
+          <hr />
+          <div style={{ textAlign: 'center', fontSize: fs }}>{values.footer_text}</div>
+        </>
+      ) : null
+
+    case 'qr':
+      return values?.qr_url ? (
+        <div style={{ textAlign: 'center', marginTop: 8, fontSize: fs }}>[QR Code]</div>
+      ) : null
+
+    default:
+      return null
+  }
+}
+
+// ─── 主组件 ─────────────────────────────────────
 export default function ReceiptSettings() {
   const qc = useQueryClient()
   const [form] = Form.useForm()
   const [uploading, setUploading] = useState(false)
+  // template_sections 独立于 Form 管理（排序/显隐/字号）
+  const [sections, setSections] = useState(DEFAULT_SECTIONS)
 
   const query = useQuery({
     queryKey: ['settings-receipt'],
@@ -26,9 +154,43 @@ export default function ReceiptSettings() {
   })
 
   useEffect(() => {
-    if (query.data) {
-      form.setFieldsValue({ ...query.data })
+    if (!query.data) return
+    const data = { ...query.data }
+
+    // 恢复 template_sections，否则用默认
+    if (data.template_sections && Array.isArray(data.template_sections)) {
+      // 合并：已保存的 section + 可能新增的 HIDDEN_SECTIONS
+      const saved = data.template_sections
+      const savedIds = new Set(saved.map((s) => s.id))
+      const merged = [...saved]
+      HIDDEN_SECTIONS.forEach((s) => {
+        if (!savedIds.has(s.id)) merged.push(s)
+      })
+      setSections(merged)
+      delete data.template_sections
     }
+
+    // 兼容旧版 boolean 开关 → 迁移到 sections
+    if (data.show_logo !== undefined) {
+      setSections((prev) => {
+        const hasLogo = prev.find((s) => s.id === 'logo')
+        return hasLogo ? prev.map((s) => s.id === 'logo' ? { ...s, visible: data.show_logo !== false } : s) : prev
+      })
+      delete data.show_logo
+    }
+    if (data.show_business_info !== undefined) {
+      setSections((prev) => {
+        const hasBI = prev.find((s) => s.id === 'business_info')
+        if (hasBI) return prev.map((s) => s.id === 'business_info' ? { ...s, visible: data.show_business_info !== false } : s)
+        // 如果旧版开了 business_info 但 sections 里没有，加上
+        return data.show_business_info !== false
+          ? [...prev, { id: 'business_info', visible: true, fontSize: 'small' }]
+          : prev
+      })
+      delete data.show_business_info
+    }
+
+    form.setFieldsValue(data)
   }, [query.data])
 
   const updateMut = useMutation({
@@ -54,18 +216,47 @@ export default function ReceiptSettings() {
     }
   }
 
+  const handleSave = (formValues) => {
+    // 只保存前端管理的字段 + sections
+    updateMut.mutate({
+      ...formValues,
+      template_sections: sections,
+    })
+  }
+
+  // ─── 区块操作 ───────────────────────────
+  const moveSection = (idx, dir) => {
+    setSections((prev) => {
+      const next = [...prev]
+      const [item] = next.splice(idx, 1)
+      next.splice(idx + dir, 0, item)
+      return next
+    })
+  }
+  const toggleSection = (id, visible) => {
+    setSections((prev) => prev.map((s) => s.id === id ? { ...s, visible } : s))
+  }
+  const setFontSize = (id, fontSize) => {
+    setSections((prev) => prev.map((s) => s.id === id ? { ...s, fontSize } : s))
+  }
+
   const values = Form.useWatch([], form)
   const logoUrl = values?.logo_url
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
+      {/* ─── 左侧：设置 ─────────────────── */}
       <Card loading={query.isLoading}>
-        <Title level={4} style={{ margin: '0 0 4px' }}><PrinterOutlined /> 收据模板</Title>
+        <Title level={4} style={{ margin: '0 0 4px' }}>
+          <PrinterOutlined /> 收据模板
+        </Title>
         <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 24 }}>
-          自定义打印小票上下文 + 选择纸张宽度
+          拖拽排序区块 · 自定义字体大小 · 实时预览
         </Text>
 
-        <Form form={form} layout="vertical" onFinish={(v) => updateMut.mutate(v)}>
+        <Form form={form} layout="vertical" onFinish={handleSave}>
+
+          {/* 纸张宽度 */}
           <Form.Item label="纸张宽度" name="paper_width">
             <Radio.Group>
               <Radio.Button value="58mm">58mm（32 列）</Radio.Button>
@@ -73,48 +264,95 @@ export default function ReceiptSettings() {
             </Radio.Group>
           </Form.Item>
 
-          <Form.Item label="顶部 Logo" name="show_logo" valuePropName="checked">
-            <Switch />
-          </Form.Item>
+          <Divider orientation="left" plain style={{ fontSize: 13 }}>区块排版</Divider>
 
-          {values?.show_logo !== false && (
-            <Form.Item label="上传 Logo 图片" name="logo_url">
-              <ImgCrop aspect={1} quality={0.9}>
-              <Upload
-                listType="picture-card"
-                showUploadList={false}
-                customRequest={handleUpload}
-                beforeUpload={beforeUpload}
-                accept="image/png,image/jpeg,image/webp"
-              >
-                {logoUrl ? (
-                  <img src={logoUrl} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : (
-                  <div>
-                    {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-                    <div style={{ marginTop: 8, fontSize: 12 }}>上传</div>
+          {/* 区块编辑器 */}
+          {sections.map((sec, idx) => {
+            const meta = SECTION_META[sec.id]
+            if (!meta) return null
+
+            return (
+              <div key={sec.id} style={{ marginBottom: 12 }}>
+                {/* 区块行：排序 / 标签 / 显隐 / 字号 */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 8px', background: '#fafafa', borderRadius: 6,
+                  border: sec.visible ? '1px solid #d9d9d9' : '1px solid #f0f0f0',
+                  opacity: sec.visible ? 1 : 0.5,
+                }}>
+                  <Button.Group size="small">
+                    <Button
+                      icon={<UpOutlined />}
+                      disabled={idx === 0}
+                      onClick={() => moveSection(idx, -1)}
+                    />
+                    <Button
+                      icon={<DownOutlined />}
+                      disabled={idx === sections.length - 1}
+                      onClick={() => moveSection(idx, 1)}
+                    />
+                  </Button.Group>
+
+                  <span style={{ flex: 1, fontWeight: 500, fontSize: 13, marginLeft: 4 }}>
+                    {meta.label}
+                  </span>
+
+                  <Switch
+                    size="small"
+                    checked={sec.visible}
+                    onChange={(v) => toggleSection(sec.id, v)}
+                  />
+
+                  <Select
+                    size="small"
+                    value={sec.fontSize}
+                    onChange={(v) => setFontSize(sec.id, v)}
+                    style={{ width: 68 }}
+                  >
+                    <Option value="small">{FONT_SIZE_LABELS.small}</Option>
+                    <Option value="medium">{FONT_SIZE_LABELS.medium}</Option>
+                    <Option value="large">{FONT_SIZE_LABELS.large}</Option>
+                  </Select>
+                </div>
+
+                {/* 内容编辑区（仅显示在可见 + 有 contentKey 的区块下方） */}
+                {sec.visible && meta.contentKey && (
+                  <div style={{ marginTop: 8, paddingLeft: 4 }}>
+                    {meta.type === 'image' && (
+                      <ImgCrop aspect={1} quality={0.9}>
+                        <Upload
+                          listType="picture-card"
+                          showUploadList={false}
+                          customRequest={handleUpload}
+                          beforeUpload={beforeUpload}
+                          accept="image/png,image/jpeg,image/webp"
+                        >
+                          {logoUrl ? (
+                            <img src={logoUrl} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          ) : (
+                            <div>
+                              {uploading ? <LoadingOutlined /> : <PlusOutlined />}
+                              <div style={{ marginTop: 8, fontSize: 12 }}>上传</div>
+                            </div>
+                          )}
+                        </Upload>
+                      </ImgCrop>
+                    )}
+                    {meta.type === 'text' && (
+                      <Form.Item name={meta.contentKey} noStyle>
+                        <Input placeholder={`输入${meta.label}`} style={{ maxWidth: 360 }} />
+                      </Form.Item>
+                    )}
+                    {meta.type === 'multiline' && (
+                      <Form.Item name={meta.contentKey} noStyle>
+                        <Input.TextArea rows={2} placeholder={`输入${meta.label}`} style={{ maxWidth: 360 }} />
+                      </Form.Item>
+                    )}
                   </div>
                 )}
-              </Upload>
-              </ImgCrop>
-            </Form.Item>
-          )}
-
-          <Form.Item label="店铺信息（地址 / 电话 / SSM）" name="show_business_info" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-
-          <Form.Item label="顶部文案" name="header_text">
-            <Input.TextArea rows={2} placeholder="例如：感谢您的光临！" />
-          </Form.Item>
-
-          <Form.Item label="底部文案" name="footer_text">
-            <Input.TextArea rows={3} placeholder="例如：扫描下方 QR 关注我们的 Instagram @avojuice" />
-          </Form.Item>
-
-          <Form.Item label="QR 码内容（顾客 App 链接 / 评价）" name="qr_url">
-            <Input placeholder="https://avojuice.com" />
-          </Form.Item>
+              </div>
+            )
+          })}
 
           <Divider />
 
@@ -123,12 +361,14 @@ export default function ReceiptSettings() {
           </Form.Item>
 
           <Space>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={updateMut.isPending}>保存</Button>
+            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={updateMut.isPending}>
+              保存
+            </Button>
           </Space>
         </Form>
       </Card>
 
-      {/* Preview */}
+      {/* ─── 右侧：预览 ─────────────────── */}
       <Card title="预览" size="small">
         <div
           style={{
@@ -142,45 +382,9 @@ export default function ReceiptSettings() {
             margin: '0 auto',
           }}
         >
-          {values?.show_logo !== false && (
-            <div style={{ textAlign: 'center', marginBottom: 4 }}>
-              {logoUrl ? (
-                <img src={logoUrl} alt="logo" style={{ height: 40, objectFit: 'contain' }} />
-              ) : (
-                <span style={{ fontSize: 24 }}>🥑</span>
-              )}
-            </div>
-          )}
-          <div style={{ textAlign: 'center', fontWeight: 'bold' }}>爱我果饮 AvoJuice</div>
-          {values?.show_business_info !== false && (
-            <div style={{ textAlign: 'center', fontSize: 10, color: '#666' }}>
-              UTAR 校园<br />
-              +60 12-XXX XXXX<br />
-              SSM: 202401234567
-            </div>
-          )}
-          {values?.header_text && <div style={{ textAlign: 'center', marginTop: 8 }}>{values.header_text}</div>}
-          <hr />
-          <div>取餐码：<strong>123456</strong></div>
-          <div>2026-05-15 14:30</div>
-          <hr />
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>× 1 招牌牛油果奶昔</span>
-            <span>12.00</span>
-          </div>
-          <div style={{ paddingLeft: 16, fontSize: 10, color: '#666' }}>少糖 / 少冰 / +珍珠</div>
-          <hr />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-            <span>合计</span>
-            <span>RM 13.00</span>
-          </div>
-          {values?.footer_text && (
-            <>
-              <hr />
-              <div style={{ textAlign: 'center', fontSize: 10 }}>{values.footer_text}</div>
-            </>
-          )}
-          {values?.qr_url && <div style={{ textAlign: 'center', marginTop: 8 }}>[QR Code]</div>}
+          {sections.filter((s) => s.visible).map((sec) => (
+            <ReceiptSection key={sec.id} sec={sec} values={values} />
+          ))}
         </div>
       </Card>
     </div>
