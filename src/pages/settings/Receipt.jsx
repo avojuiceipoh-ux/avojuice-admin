@@ -87,7 +87,6 @@ function ReceiptSection({ sec, values }) {
         <>
           <hr />
           <div style={{ fontSize: fs, textAlign: align }}><strong>123456</strong></div>
-          <div style={{ fontSize: fs, textAlign: align }}>2026-05-15 14:30</div>
         </>
       )
 
@@ -100,7 +99,8 @@ function ReceiptSection({ sec, values }) {
       return (
         <>
           <hr />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: fs }}>
+          <div style={{ fontSize: fs, textAlign: align }}>2026-05-15 14:30</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: fs, marginTop: 4 }}>
             <span>× 1 招牌牛油果奶昔</span>
             <span>12.00</span>
           </div>
@@ -195,13 +195,15 @@ export default function ReceiptSettings() {
     onError: () => message.error('保存失败'),
   })
 
-  // Logo 上传 — 参照 Banners.jsx 模式：onSuccess 传 res.data，让 Form.Item 接管
+  // Logo 上传 — 手动 setFieldsValue，稳过 Form.Item + Upload 的 showUploadList=false 兼容问题
   const handleUpload = async (options) => {
     const { file, onSuccess, onError } = options
     setUploading(true)
     try {
       const res = await uploadAPI.logo(file)
-      onSuccess(res.data)
+      const url = res.data.logo_url
+      form.setFieldsValue({ logo_url: url })
+      onSuccess(url)
       message.success('Logo 上传成功')
     } catch (e) {
       onError(e)
@@ -261,6 +263,9 @@ export default function ReceiptSettings() {
             </Radio.Group>
           </Form.Item>
 
+          {/* 隐藏字段：让 form store 追踪 logo_url（Upload 手动 setFieldsValue 设值） */}
+          <Form.Item name="logo_url" hidden><Input /></Form.Item>
+
           <Divider orientation="left" plain style={{ fontSize: 13 }}>区块排版</Divider>
 
           {/* 区块编辑器 */}
@@ -307,33 +312,24 @@ export default function ReceiptSettings() {
                 {sec.visible && meta.contentKey && (
                   <div style={{ marginTop: 8, paddingLeft: 4 }}>
                     {meta.type === 'image' && (
-                      <Form.Item name={meta.contentKey} noStyle
-                        getValueFromEvent={(e) => {
-                          // 从 Upload onChange 中提取 URL 字符串
-                          if (Array.isArray(e) && e.length > 0) return e[0]?.response?.logo_url || e[0]?.url || ''
-                          if (e?.file?.response?.logo_url) return e.file.response.logo_url
-                          return e
-                        }}
-                      >
-                        <ImgCrop aspect={1} quality={0.9}>
-                          <Upload
-                            listType="picture-card"
-                            showUploadList={false}
-                            customRequest={handleUpload}
-                            beforeUpload={beforeUpload}
-                            accept="image/png,image/jpeg,image/webp"
-                          >
-                            {logoUrl ? (
-                              <img src={logoUrl} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            ) : (
-                              <div>
-                                {uploading ? <LoadingOutlined /> : <PlusOutlined />}
-                                <div style={{ marginTop: 8, fontSize: 12 }}>上传</div>
-                              </div>
-                            )}
-                          </Upload>
-                        </ImgCrop>
-                      </Form.Item>
+                      <ImgCrop aspect={1} quality={0.9}>
+                        <Upload
+                          listType="picture-card"
+                          showUploadList={false}
+                          customRequest={handleUpload}
+                          beforeUpload={beforeUpload}
+                          accept="image/png,image/jpeg,image/webp"
+                        >
+                          {logoUrl ? (
+                            <img src={logoUrl} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          ) : (
+                            <div>
+                              {uploading ? <LoadingOutlined /> : <PlusOutlined />}
+                              <div style={{ marginTop: 8, fontSize: 12 }}>上传</div>
+                            </div>
+                          )}
+                        </Upload>
+                      </ImgCrop>
                     )}
                     {meta.type === 'text' && (
                       <Form.Item name={meta.contentKey} noStyle>
