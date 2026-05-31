@@ -61,7 +61,7 @@ function ReceiptSection({ sec, values }) {
       return (
         <div style={{ textAlign: align, marginBottom: 4 }}>
           {values?.logo_url ? (
-            <img src={values.logo_url} alt="logo" style={{ height: 64, maxWidth: '80%', objectFit: 'contain' }} />
+            <img src={values.logo_url} alt="logo" style={{ height: 100, objectFit: 'contain', display: 'block', margin: '0 auto' }} />
           ) : (
             <span style={{ fontSize: 32 }}>🥑</span>
           )}
