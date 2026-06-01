@@ -269,6 +269,18 @@ export default function ReceiptSettings() {
             </Radio.Group>
           </Form.Item>
 
+          {/* 小票语言 — 当前 JK-5802P 国际版 ROM 只能打英文，等买中文版打印机切回中文 */}
+          <Form.Item
+            label="小票语言"
+            name="receipt_language"
+            extra="当前打印机不支持中文 → 选英文；买了中文 ROM 打印机后切回中文"
+          >
+            <Radio.Group>
+              <Radio.Button value="zh">🇨🇳 中文</Radio.Button>
+              <Radio.Button value="en">🇬🇧 English</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+
           {/* 隐藏字段：让 form store 追踪 logo_url（Upload 手动 setFieldsValue 设值） */}
           <Form.Item name="logo_url" hidden><Input /></Form.Item>
 
